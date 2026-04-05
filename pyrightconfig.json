@@ -1,0 +1,12 @@
+{
+  "venvPath": "/home/rei/Documentos/Universidad/django-kokori-broaster",
+  "venv": "env",
+  "include": [
+    "."
+  ],
+  "executionEnvironments": [
+    {
+      "root": "."
+    }
+  ]
+}

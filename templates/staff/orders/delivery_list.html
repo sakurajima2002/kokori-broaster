@@ -1,0 +1,66 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}Envíos y Entregas | Kokori Staff{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Standardized Header -->
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
+
+    <!-- Deliveries Table -->
+    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50/60 border-b border-gray-100">
+                    <tr>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Pedido</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Cliente</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Salida</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Entrega Estimada</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Seguimiento</th>
+                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for delivery in deliveries %}
+                    <tr class="group hover:bg-orange-50/20 transition-all duration-300">
+                        <td class="px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ delivery.order.id }}</td>
+                        <td class="px-8 py-6">
+                            <div class="flex flex-col">
+                                <span class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors uppercase italic">{{ delivery.order.user.get_full_name|default:delivery.order.user.username }}</span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Despacho Kokori</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-sm text-gray-600 font-medium">
+                            {{ delivery.departure_date|date:"d M, H:i" }}
+                        </td>
+                        <td class="px-8 py-6 text-sm text-gray-600 font-medium">
+                            {{ delivery.delivery_date|date:"d M, H:i"|default:"En Tránsito" }}
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="inline-flex items-center px-3 py-1 rounded-lg bg-gray-100 text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-200/50">
+                                {{ delivery.tracking_number|default:"SIN TRACKING" }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            {% if perms.orders.view_order %}
+                            <a href="{% url 'orders:order_detail' delivery.order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                            No hay entregas activas en sistema
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

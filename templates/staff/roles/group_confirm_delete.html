@@ -1,0 +1,32 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}Eliminar Rol: {{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100">
+        <div class="px-8 py-10 text-center">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">¿Eliminar este Rol?</h1>
+            <p class="text-gray-600 mb-8">
+                Estás a punto de eliminar el rol <span class="font-bold text-gray-900">"{{ object.name }}"</span>. 
+                Esta acción no se puede deshacer y los usuarios asignados a este grupo perderán sus permisos asociados.
+            </p>
+
+            <form method="post" class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                {% csrf_token %}
+                <a href="{% url 'roles:group_list' %}" class="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none transition-all">
+                    No, mantener rol
+                </a>
+                <button type="submit" class="px-8 py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 hover:shadow-lg focus:outline-none transition-all">
+                    Sí, eliminar definitivamente
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

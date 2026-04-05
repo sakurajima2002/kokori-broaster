@@ -1,0 +1,51 @@
+<!-- Reusable Standardized Header for Kokori Admin Pane -->
+<header class="flex flex-col md:flex-row md:items-center justify-between bg-white border border-gray-100 rounded-[2.5rem] p-8 shadow-sm mb-10 transition-all hover:shadow-md">
+    <div class="flex items-center gap-6">
+        {% if is_form or show_back %}
+        <a href="{{ back_url|default:'#' }}"
+           class="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-all border border-gray-100 group" title="Volver">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+        </a>
+        {% endif %}
+        
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tighter uppercase italic leading-none">{{ title }}</h1>
+            <div class="mt-3 flex items-center gap-3">
+                <div class="h-1 w-8 bg-orange-500 rounded-full"></div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">{{ subtitle }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-6 md:mt-0 flex items-center gap-6">
+        <!-- Optional Counter/Stat -->
+        {% if count_value is not None %}
+        <div class="hidden lg:flex flex-col text-right">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">{{ count_label|default:'Total Registros' }}</span>
+            <span class="text-xl font-black text-gray-900 tracking-tighter mt-1">{{ count_value }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Optional Action Button -->
+        {% if cta_label %}
+            {% if cta_url %}
+            <a href="{{ cta_url }}" class="group relative px-8 py-4 bg-gray-950 text-white rounded-[1.8rem] font-black text-xs uppercase tracking-widest overflow-hidden shadow-2xl shadow-gray-200 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95">
+                <span class="relative z-10 flex items-center">
+                    <svg class="mr-3 h-5 w-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    {{ cta_label }}
+                </span>
+            </a>
+            {% elif cta_onclick %}
+            <button onclick="{{ cta_onclick }}" type="button" 
+                    class="group relative px-8 py-4 bg-gray-950 text-white rounded-[1.8rem] font-black text-xs uppercase tracking-widest overflow-hidden shadow-2xl shadow-gray-200 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95">
+                <span class="relative z-10 flex items-center">
+                    <svg class="mr-3 h-5 w-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    {{ cta_label }}
+                </span>
+            </button>
+            {% endif %}
+        {% endif %}
+    </div>
+</header>

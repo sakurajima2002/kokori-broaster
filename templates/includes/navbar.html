@@ -1,0 +1,63 @@
+{% load static %}
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-100 shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20">
+            <!-- Branding & Logo -->
+            <div class="flex items-center">
+                <a href="/" class="flex items-center space-x-2 group">
+                    <div class="h-10 w-10 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-300">
+                        <span class="text-white font-black text-xl italic">K</span>
+                    </div>
+                    <span class="text-2xl font-black text-gray-900 tracking-tighter group-hover:text-orange-600 transition-colors">Kokori <span class="text-orange-600">Broaster</span></span>
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Inicio</a>
+                
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                        <a href="{% url 'accounts:user_list' %}" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Usuarios</a>
+                        <a href="{% url 'roles:group_list' %}" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Roles</a>
+                    {% endif %}
+                    
+                    <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                    <a href="#" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Mi Cuenta</a>
+                    <a href="{% url 'accounts:logout' %}" class="ml-4 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-100/50 hover:shadow-orange-200/50 transition-all duration-300">Cerrar Sesión</a>                    
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="ml-4 px-6 py-2.5 rounded-xl text-sm font-extrabold text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-100/50 hover:shadow-orange-200/50 transition-all duration-300">Iniciar Sesión</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors">
+                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-100 py-6 px-4 space-y-2 animate-in slide-in-from-top duration-300">
+        <a href="/" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Inicio</a>
+        
+        {% if user.is_authenticated %}
+            {% if user.is_staff %}
+                <div class="py-2 px-6"><span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admin Panel</span></div>
+                <a href="{% url 'accounts:user_list' %}" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Gestión Usuarios</a>
+                <a href="{% url 'roles:group_list' %}" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Gestión Roles</a>
+            {% endif %}
+            
+            <div class="py-2 px-6"><span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tu Perfil</span></div>
+            <a href="#" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Mi Perfil</a>
+            <a href="{% url 'accounts:logout' %}" class="block mt-4 px-6 py-4 rounded-2xl text-base font-black text-center text-white bg-orange-600 shadow-lg shadow-orange-100">Cerrar Sesión</a>
+        {% else %}
+            <a href="{% url 'accounts:login' %}" class="block px-6 py-4 rounded-2xl text-base font-black text-center text-white bg-orange-600 shadow-lg shadow-orange-100">Iniciar Sesión</a>
+        {% endif %}
+    </div>
+</nav>

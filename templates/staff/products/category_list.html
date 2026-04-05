@@ -1,0 +1,255 @@
+{% extends "staff/staff_base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}Categorías | Kokori Staff{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Standardized Header -->
+    {% if perms.products.add_category %}
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value cta_label=header_config.cta_label cta_onclick=header_config.cta_onclick %}
+    {% else %}
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
+    {% endif %}
+
+
+    <!-- Catalog Table -->
+    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50/60 border-b border-gray-100">
+                    <tr>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">#</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Descripción de la categoría</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Items</th>
+                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                {% for category in categories %}
+                <tr class="group hover:bg-orange-50/20 transition-all duration-300">
+                    <td class="px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ forloop.counter }}</td>
+                    <td class="px-8 py-6">
+                        <div class="flex flex-col">
+                            <span class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors uppercase italic">{{ category.name }}</span>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Identificador único</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6">
+                        <p class="text-sm text-gray-600 font-medium leading-relaxed max-w-xs">{{ category.description|default:"Sin descripción registrada" }}</p>
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-orange-600 text-[10px] font-black text-white shadow-xl shadow-orange-100">{{ category.products.count }}</span>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Registrados</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <!-- Edit -->
+                            {% if perms.products.change_category %}
+                            <button
+                                onclick="AdminProducts.openCategoryEdit(CATEGORY_URLS.update({{ category.pk }}), '{{ category.name|escapejs }}', '{{ category.description|escapejs }}')"
+                                class="p-3 text-gray-400 hover:text-orange-600 transition-all rounded-xl hover:bg-orange-50 border border-transparent hover:border-orange-100"
+                                title="Editar categoría">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                            <!-- Delete -->
+                            {% if perms.products.delete_category %}
+                            <button
+                                onclick="AdminProducts.openCategoryDelete(CATEGORY_URLS.delete({{ category.pk }}), '{{ category.name|escapejs }}')"
+                                class="p-3 text-gray-400 hover:text-red-500 transition-all rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100"
+                                title="Eliminar categoría">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-16 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none"
+                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-sm font-medium text-gray-500 mb-1">No hay categorías registradas</p>
+                            <p class="text-xs text-gray-400">Crea la primera categoría para empezar a organizar tus productos.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ─────────── Create / Edit Category Modal ─────────── -->
+<div id="category-modal" class="fixed inset-0 z-50 hidden">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" data-modal-overlay></div>
+
+    <!-- Content -->
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-8 border border-gray-200 animate-modal-enter">
+
+            <!-- Close -->
+            <button onclick="AdminModals.close('category-modal')" type="button" class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+
+            <!-- Header -->
+            <div class="mb-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h2 id="modal-title" class="text-lg font-bold text-gray-900">Nueva Categoría</h2>
+                </div>
+                <p id="modal-subtitle" class="text-sm text-gray-500 ml-[52px]">Agrega una nueva clasificación para tus productos.</p>
+            </div>
+
+            <!-- Form -->
+            <form id="category-form" action="{% url 'products:category_list' %}" method="POST">
+                {% csrf_token %}
+
+                <!-- Nombre -->
+                <div class="mb-5">
+                    <label for="modal-name" class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Nombre de la categoría
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                                <line x1="7" y1="7" x2="7.01" y2="7"/>
+                            </svg>
+                        </span>
+                        <input id="modal-name" name="name" type="text" required
+                               class="w-full pl-9 pr-4 py-3 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all duration-200 hover:border-orange-300 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                               placeholder="Ej. Pollos, Bebidas, Combos...">
+                    </div>
+                    {% if form.name.errors %}
+                    <p class="mt-1.5 text-xs text-red-500">{{ form.name.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-6">
+                    <label for="modal-description" class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Descripción <span class="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute top-3.5 left-3 flex items-start pointer-events-none text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/>
+                                <line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>
+                            </svg>
+                        </span>
+                        <textarea id="modal-description" name="description" rows="3"
+                                  class="w-full pl-9 pr-4 py-3 text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all duration-200 hover:border-orange-300 focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
+                                  placeholder="Breve descripción de esta categoría..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button type="button" onclick="AdminModals.close('category-modal')"
+                            class="flex-1 py-3 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-[2] flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all duration-200 active:scale-[0.98]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        <span id="modal-submit-text">Guardar Categoría</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ─────────── Delete Category Modal ─────────── -->
+<div id="delete-category-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-overlay></div>
+
+    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50 animate-modal-enter">
+        <div class="flex flex-col items-center text-center">
+            <div class="h-20 w-20 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mb-6 border-4 border-white shadow-xl">
+                <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </div>
+
+            <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase italic leading-none mb-3">¿Eliminar Categoría?</h2>
+            <p class="text-sm text-gray-400 font-medium leading-relaxed mb-8 px-4">
+                Estás a punto de eliminar <span id="delete-category-name" class="font-black text-gray-900"></span>.
+                Los productos asociados también serán afectados.
+            </p>
+
+            <form id="delete-category-form" method="POST" class="w-full flex items-center gap-3">
+                {% csrf_token %}
+                <button type="button" onclick="AdminModals.close('delete-category-modal')"
+                        class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100 transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="flex-1 px-6 py-4 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-100 hover:bg-red-700 active:scale-95 transition-all">
+                    Sí, Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="{% static 'js/admin_modals.js' %}"></script>
+<script src="{% static 'js/admin_products.js' %}"></script>
+<script>
+    // Configuration for Product/Category Logic
+    const CATEGORY_URLS = {
+        create: "{% url 'products:category_create' %}",
+        update: (pk) => "{% url 'products:category_update' 0 %}".replace('/0/', '/' + pk + '/'),
+        delete: (pk) => "{% url 'products:category_delete' 0 %}".replace('/0/', '/' + pk + '/')
+    };
+
+    // Auto-open on errors
+    {% if form.errors %}
+        document.addEventListener('DOMContentLoaded', () => AdminModals.open('category-modal'));
+    {% endif %}
+</script>
+{% endblock %}
+
+<style>
+    @keyframes modal-enter {
+        from { opacity: 0; transform: scale(0.93) translateY(16px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal-enter { animation: modal-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>
+{% endblock %}

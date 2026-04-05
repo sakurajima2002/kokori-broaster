@@ -1,0 +1,74 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}Asignar Roles: {{ object.email }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Standardized Header -->
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle show_back=header_config.show_back back_url=header_config.back_url %}
+
+    <!-- Form Card -->
+    <div class="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-8 sm:p-12 mb-20 transition-all hover:shadow-md">
+        
+        <!-- User Identifier Badge -->
+        <div class="flex items-center gap-5 p-6 bg-gray-50 rounded-3xl border border-gray-100 mb-12">
+            <div class="h-14 w-14 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-black text-xl italic shadow-lg shadow-orange-100">
+                {{ object.email|slice:":1"|upper }}
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Usuario Seleccionado</span>
+                <span class="text-lg font-black text-gray-900 tracking-tight uppercase italic leading-none">{{ object.email }}</span>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-12">
+            {% csrf_token %}
+            
+            <!-- Roles Selector Section -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 mb-2 px-2">
+                    <span class="h-4 w-1 bg-orange-600 rounded-full"></span>
+                    <h3 class="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">Asignación de Roles de Staff</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for choice in form.groups %}
+                    <label class="relative flex items-start p-6 bg-white rounded-2xl border border-gray-100 cursor-pointer hover:border-orange-200 hover:shadow-sm transition-all group overflow-hidden">
+                        <!-- Selection Highlight -->
+                        <div class="absolute inset-y-0 left-0 w-1 bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div class="flex items-center h-6">
+                            <input type="checkbox" name="groups" id="{{ choice.id_for_label }}" value="{{ choice.data.value }}" 
+                                   {% if choice.data.selected %}checked{% endif %}
+                                   class="h-6 w-6 rounded-lg border-gray-200 text-orange-600 focus:ring-orange-500 focus:ring-offset-0 transition-all cursor-pointer">
+                        </div>
+                        <div class="ml-5 flex flex-col">
+                            <span class="text-sm font-black text-gray-900 uppercase tracking-tight group-hover:text-orange-600 transition-all italic leading-none mb-2">
+                                {{ choice.choice_label }}
+                            </span>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">
+                                Habilita los privilegios de este grupo para el acceso a módulos operativos.
+                            </span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-4 pt-8 border-t border-gray-50">
+                <a href="{% url 'accounts:user_list' %}" class="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors">
+                    Descartar
+                </a>
+                <button type="submit" class="group relative px-10 py-5 bg-gray-950 text-white rounded-[1.8rem] font-black text-xs uppercase tracking-widest overflow-hidden shadow-2xl shadow-gray-200 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95">
+                    <span class="relative z-10 flex items-center gap-3">
+                        <svg class="h-5 w-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        Guardar Configuración
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

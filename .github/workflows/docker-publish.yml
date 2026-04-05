@@ -1,0 +1,38 @@
+name: Docker CI (Build & Test)
+
+on:
+  push:
+    branches: [ "release/**" ]
+  pull_request:
+    branches: [ "release/**" ]
+
+jobs:
+  docker-test:
+    name: Build and Run Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t myapp:test .
+
+      - name: Run container
+        run: |
+          docker run -d --name myapp_container -p 8000:8000 myapp:test
+
+      - name: Wait for app to be ready
+        run: |
+          sleep 10
+
+      - name: Run tests inside container
+        run: |
+          docker exec myapp_container python manage.py test
+
+      - name: Stop container
+        if: always()
+        run: |
+          docker stop myapp_container
+          docker rm myapp_container

@@ -1,0 +1,136 @@
+{% extends 'users/user_base.html' %}
+{% load static %}
+
+{% block title %}Bienvenidos{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-white -mt-6 rounded-b-[2.5rem] shadow-xl shadow-orange-100/30">
+    <div class="absolute inset-0 bg-gradient-to-br from-orange-50/30 via-white to-orange-100/20"></div>
+    
+    <!-- Decorative Elements -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-orange-200/10 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-orange-300/10 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+            <div class="space-y-5 animate-in fade-in slide-in-from-left duration-700">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 bg-orange-50/50 border border-orange-100/50 rounded-xl">
+                    <span class="flex h-1.5 w-1.5 rounded-full bg-orange-600 animate-pulse"></span>
+                    <span class="text-[10px] font-black text-orange-700 uppercase tracking-[0.2em]">El sabor que define la tradición</span>
+                </div>
+                
+                <h1 class="text-4xl lg:text-6xl font-black text-gray-900 leading-tight tracking-tight">
+                    Crujiente. Dorado. <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">Simplemente Perfecto.</span>
+                </h1>
+                
+                <p class="text-base text-gray-600 max-w-md leading-relaxed font-medium">
+                    Seleccionamos los mejores cortes y especias para ofrecerte una experiencia gastronómica única en cada bocado.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
+                    <a href="{% url 'accounts:login' %}" class="w-full sm:w-auto px-7 py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-base shadow-lg shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center">
+                        Hacer Pedido
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </a>
+                    <a href="#specialties" class="w-full sm:w-auto px-7 py-3.5 bg-white border border-gray-200 text-gray-700 hover:border-orange-200 hover:text-orange-600 rounded-xl font-bold text-base transition-all duration-300 text-center">
+                        Explorar Menú
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-6 pt-2">
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-black text-gray-900">5k+</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Clientes</span>
+                    </div>
+                    <div class="h-8 w-px bg-gray-100"></div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-black text-gray-900">4.9/5</span>
+                        <div class="flex text-orange-500 scale-75 -ml-5">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative animate-in fade-in zoom-in duration-700 delay-100">
+                <div class="absolute inset-0 bg-orange-400 rounded-full blur-[80px] opacity-10 transform scale-75"></div>
+                <div class="relative h-[400px] w-full bg-gradient-to-tr from-white to-orange-50/50 rounded-[2rem] overflow-hidden shadow-inner flex items-center justify-center border border-orange-100/50">
+                    <div class="text-center p-6">
+                        <div class="h-20 w-20 bg-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-[bounce_3s_infinite] shadow-xl shadow-orange-200">
+                            <span class="text-white font-black text-3xl italic">K</span>
+                        </div>
+                        <p class="text-orange-950 font-black text-lg tracking-tight">EXPERIENCIA KOKORI</p>
+                        <p class="text-orange-600/60 font-bold text-xs mt-1 uppercase tracking-widest font-mono">Premium Quality</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Specialties Section -->
+<section id="specialties" class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12 space-y-2">
+            <span class="text-orange-600 font-extrabold uppercase tracking-[0.4em] text-[10px]">El Sello de Calidad</span>
+            <h2 class="text-3xl lg:text-4xl font-black text-gray-900">Nuestro Compromiso</h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Specialty 1 -->
+            <div class="group bg-white p-6 rounded-2xl border border-gray-100 hover:border-orange-100 hover:shadow-xl hover:shadow-orange-50/50 transition-all duration-300">
+                <div class="h-12 w-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-5 group-hover:-translate-y-1 transition-transform">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-1.006 3.42 3.42 0 014.438 0c.699.588 1.58.93 2.515.94 1.79.02 3.227 1.483 3.21 3.273a3.42 3.42 0 001.006 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-1.006 1.946c.017 1.79-1.42 3.253-3.21 3.273a3.42 3.42 0 00-2.515.94 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-1.006 3.42 3.42 0 01-3.21-3.273 3.42 3.42 0 00-1.006-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 001.006-1.946c.017-1.79 1.42-3.253 3.21-3.273a3.42 3.42 0 001.946-1.006z"></path></svg>
+                </div>
+                <h3 class="text-lg font-black text-gray-900 mb-2">Receta de Autor</h3>
+                <p class="text-sm text-gray-500 font-medium leading-relaxed">Nuestra mezcla exclusiva de especias crea un sabor inconfundible y superior.</p>
+            </div>
+
+            <!-- Specialty 2 -->
+            <div class="group bg-white p-6 rounded-2xl border border-gray-100 hover:border-orange-100 hover:shadow-xl hover:shadow-orange-50/50 transition-all duration-300">
+                <div class="h-12 w-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-5 group-hover:-translate-y-1 transition-transform">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="text-lg font-black text-gray-900 mb-2">Máxima Frescura</h3>
+                <p class="text-sm text-gray-500 font-medium leading-relaxed">Pollo de granja seleccionado diariamente para garantizar frescura en cada plato.</p>
+            </div>
+
+            <!-- Specialty 3 -->
+            <div class="group bg-white p-6 rounded-2xl border border-gray-100 hover:border-orange-100 hover:shadow-xl hover:shadow-orange-50/50 transition-all duration-300">
+                <div class="h-12 w-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-5 group-hover:-translate-y-1 transition-transform">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-lg font-black text-gray-900 mb-2">Servicio Ágil</h3>
+                <p class="text-sm text-gray-500 font-medium leading-relaxed">Procesos optimizados para que disfrutes de tu pedido siempre caliente y al instante.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 mb-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative bg-gray-900 rounded-[2rem] overflow-hidden p-10 lg:p-16 text-center shadow-2xl">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-600/10 to-transparent"></div>
+            
+            <div class="relative space-y-6 max-w-xl mx-auto">
+                <h2 class="text-3xl lg:text-5xl font-black text-white leading-tight">
+                    ¿Listo para <br/> <span class="text-orange-500">repetir la experiencia?</span>
+                </h2>
+                <p class="text-gray-400 text-base font-medium">Únete y accede a beneficios exclusivos.</p>
+                <div class="flex justify-center pt-2">
+                    <a href="{% url 'accounts:login' %}" class="px-8 py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-lg shadow-xl shadow-orange-900/20 hover:-translate-y-0.5 transition-all duration-300">
+                        ¡Ordenar Ahora!
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
