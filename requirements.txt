@@ -3,3 +3,4 @@ Django==6.0.3
 django-widget-tweaks==1.5.1
 pillow==12.2.0
 sqlparse==0.5.5
+python-dotenv==1.0.1
