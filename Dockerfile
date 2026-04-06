@@ -27,8 +27,13 @@ RUN pip install gunicorn
 
 COPY . .
 
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 COPY --from=node-build /app/static/css/output.css ./static/css/output.css
 
 EXPOSE 8000
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"]
