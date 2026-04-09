@@ -6,7 +6,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import HomeView
 
-# Forzar las vistas de error personalizadas incluso en modo DEBUG=True
 def custom_404(request, exception=None):
     return render(request, '404.html', status=404)
 
@@ -24,9 +23,9 @@ urlpatterns = [
     path('products/', include(('products.urls', 'products'))),
     path('orders/', include(('orders.urls', 'orders'))),
     
-    # Ruta catch-all para forzar el 404 en desarrollo
-    re_path(r'^.*$', custom_404),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+urlpatterns.append(re_path(r'^.*$', custom_404))

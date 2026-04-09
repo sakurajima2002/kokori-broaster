@@ -1,4 +1,4 @@
-from roles.mixins import StaffListingMixin, StaffHeaderMixin, RolePermissionRequiredMixin, StaffPermissionRequiredMixin
+from roles.mixins import StaffListingMixin, StaffHeaderMixin, StaffPermissionRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.views import View
 from django.contrib import messages
@@ -70,7 +70,7 @@ class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListin
         # Excluir al usuario actual del listado
         return super().get_queryset().exclude(id=self.request.user.id)
 
-class UserDetailView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHeaderMixin, DetailView):
+class UserDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, DetailView):
     model = User
     template_name = 'staff/accounts/user_detail.html'
     context_object_name = 'user'
@@ -96,13 +96,13 @@ class UserStaffStatusToggleView(LoginRequiredMixin, StaffPermissionRequiredMixin
         messages.success(request, f'El usuario {user.email} {status_text}.')
         return redirect('accounts:user_list')
 
-class AddressListView(LoginRequiredMixin, RolePermissionRequiredMixin, ListView):
+class AddressListView(LoginRequiredMixin, StaffPermissionRequiredMixin, ListView):
     model = Address
     template_name = 'users/accounts/address_list.html'
     context_object_name = 'addresses'
     permission_required = 'accounts.view_address'
 
-class AddressDetailView(LoginRequiredMixin, RolePermissionRequiredMixin, DetailView):
+class AddressDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, DetailView):
     model = Address
     template_name = 'users/accounts/address_detail.html'
     context_object_name = 'address'

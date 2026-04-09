@@ -21,7 +21,6 @@ class StaffHeaderMixin:
     header_show_back = False
 
     def get_context_data(self, **kwargs):
-        # Safely call super() if it exists (for Generic Views)
         if hasattr(super(), 'get_context_data'):
             context = super().get_context_data(**kwargs)
         else:

@@ -6,15 +6,32 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.views import View
 
-from roles.mixins import RolePermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
-from .models import Category, Product, ComboDetail
+from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
+from .models import Category, Product
 from .forms import ProductForm, CategoryForm, ComboDetailFormSet
 from . import selectors
 
 
+
+# ─────────────────────────── PUBLIC VIEWS ────────────────────────────── #
+
+class ProductCatalogView(View):
+    template_name = 'products/product_catalog.html'
+
+    def get(self, request, *args, **kwargs):
+        categories = selectors.get_all_categories()
+        categories_with_products = [cat for cat in categories if cat.products.exists()]
+        
+        context = {
+            'categories': categories_with_products,
+        }
+        return render(request, self.template_name, context)
+
+
 # ─────────────────────────── CATEGORY VIEWS ─────────────────────────── #
 
-class CategoryListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListingMixin, View):
+
+class CategoryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, View):
     template_name = 'staff/products/category_list.html'
     permission_required = 'products.view_category'
     header_title = "Gestión de Categorías"
@@ -30,7 +47,7 @@ class CategoryListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffLis
         context.update({'categories': categories, 'form': form})
         return render(request, self.template_name, context)
 
-class CategoryCreateView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
+class CategoryCreateView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'products.add_category'
 
     def post(self, request, *args, **kwargs):
@@ -43,7 +60,7 @@ class CategoryCreateView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
         return redirect('products:category_list')
 
 
-class CategoryUpdateView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
+class CategoryUpdateView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'products.change_category'
 
     def post(self, request, pk, *args, **kwargs):
@@ -57,7 +74,7 @@ class CategoryUpdateView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
         return redirect('products:category_list')
 
 
-class CategoryDeleteView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
+class CategoryDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'products.delete_category'
 
     def post(self, request, pk, *args, **kwargs):
@@ -70,7 +87,7 @@ class CategoryDeleteView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
 
 # ─────────────────────────── PRODUCT VIEWS ──────────────────────────── #
 
-class ProductListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListingMixin, ListView):
+class ProductListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Product
     template_name = 'staff/products/product_list.html'
     context_object_name = 'products'
@@ -85,7 +102,7 @@ class ProductListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffList
         return selectors.get_all_products()
 
 
-class ProductCreateView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHeaderMixin, View):
+class ProductCreateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, View):
     permission_required = 'products.add_product'
     template_name = 'staff/products/product_form.html'
     header_title = "Nuevo Producto"
@@ -120,7 +137,7 @@ class ProductCreateView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHe
         })
 
 
-class ProductUpdateView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHeaderMixin, View):
+class ProductUpdateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, View):
     permission_required = 'products.change_product'
     template_name = 'staff/products/product_form.html'
     header_title = "Editar Producto"
@@ -152,7 +169,6 @@ class ProductUpdateView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHe
                     if formset.is_valid():
                         formset.save()
                 else:
-                    # If no longer a combo, delete previous combo items
                     product.combo_details.all().delete()
             messages.success(request, f'Producto "{product.name}" actualizado correctamente.')
             return redirect('products:product_list')
@@ -164,7 +180,7 @@ class ProductUpdateView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHe
         })
 
 
-class ProductDeleteView(LoginRequiredMixin, RolePermissionRequiredMixin, View):
+class ProductDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'products.delete_product'
 
     def post(self, request, pk, *args, **kwargs):
