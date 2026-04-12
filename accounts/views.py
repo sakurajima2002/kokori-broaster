@@ -11,7 +11,7 @@ from .models import User, Address
 from .forms import LoginUserForm, RegisterUserForm
 from products.models import Product
 from orders.models import Order
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum
 
 class LoginUserView(View):
     template_login = 'users/accounts/login.html'

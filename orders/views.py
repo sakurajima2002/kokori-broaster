@@ -2,9 +2,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.decorators.http import require_POST
 from django.views import View
-from django.utils.decorators import method_decorator
 
 from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
 from products.models import Product
