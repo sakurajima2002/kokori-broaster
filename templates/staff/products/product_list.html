@@ -15,8 +15,29 @@
     {% endif %}
 
 
-    <!-- Catalog Table -->
+    <!-- Search & Actions Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Catálogo Operativo</h2>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {% include 'includes/search_input.html' with search_id='productSearch' target_id='productsTableBody' item_selector='tr' empty_state_id='productEmptySearchState' placeholder='Buscar producto...' %}
+        </div>
+    </div>
+
+    <!-- Groups Table -->
     <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div id="productEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron productos que coincidan</p>
+                <button onclick="document.getElementById('productSearch').value=''; document.getElementById('productSearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
@@ -25,10 +46,12 @@
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Tipo & Categoría</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Precio</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Stock</th>
+                        {% if perms.products.change_product or perms.products.delete_product %}
                         <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+                        {% endif %}
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody id="productsTableBody" class="divide-y divide-gray-50">
                     {% for product in products %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
                         <!-- Product Image + Name -->
@@ -52,7 +75,10 @@
                                 </div>
                                 <div class="flex flex-col min-w-0">
                                     {% if product.is_combo %}
-                                    <button onclick="window.AdminProducts.openComboModal('staff-combo-{{ product.id }}')" class="text-left text-base font-black text-gray-900 tracking-tight leading-none mb-1 hover:text-orange-600 transition-colors truncate max-w-[200px] underline decoration-dotted decoration-gray-300 underline-offset-4 cursor-pointer">
+                                    <button
+                                        data-action="open-combo"
+                                        data-modal-id="staff-combo-{{ product.id }}"
+                                        class="text-left text-base font-black text-gray-900 tracking-tight leading-none mb-1 hover:text-orange-600 transition-colors truncate max-w-[200px] underline decoration-dotted decoration-gray-300 underline-offset-4 cursor-pointer">
                                         {{ product.name }}
                                     </button>
                                     {% else %}
@@ -110,6 +136,7 @@
                         </td>
 
                         <!-- Actions -->
+                        {% if perms.products.change_product or perms.products.delete_product %}
                         <td class="px-8 py-6">
                             <div class="flex items-center justify-end gap-2">
                                 <!-- Edit -->
@@ -122,7 +149,10 @@
                                 {% endif %}
                                 <!-- Delete -->
                                 {% if perms.products.delete_product %}
-                                <button onclick="AdminProducts.confirmProductDeletion('{{ product.name }}', '{% url 'products:product_delete' product.pk %}')"
+                                <button
+                                        data-action="product-delete"
+                                        data-name="{{ product.name }}"
+                                        data-url="{% url 'products:product_delete' product.pk %}"
                                         class="p-3 bg-red-50 border border-red-100 text-red-400 rounded-2xl hover:bg-red-500 hover:border-red-500 hover:text-white hover:shadow-lg hover:shadow-red-200 transition-all active:scale-95"
                                         title="Eliminar producto">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -130,10 +160,11 @@
                                 {% endif %}
                             </div>
                         </td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="px-10 py-32 text-center bg-gray-50/30">
+                        <td colspan="{% if perms.products.change_product or perms.products.delete_product %}5{% else %}4{% endif %}" class="px-10 py-32 text-center bg-gray-50/30">
                             <div class="flex flex-col items-center">
                                 <div class="relative h-24 w-24 bg-white rounded-[2rem] shadow-xl border border-gray-100 flex items-center justify-center mb-8 rotate-3">
                                     <svg class="h-10 w-10 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-3.586a1 1 0 00-.707.293l-1.414 1.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 006.586 13H4"></path></svg>
@@ -161,14 +192,14 @@
     {% for product in products %}
         {% if product.is_combo %}
         <div id="staff-combo-{{ product.id }}" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-300">
-            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="window.AdminProducts.closeComboModal('staff-combo-{{ product.id }}')"></div>
+            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-close="staff-combo-{{ product.id }}"></div>
             <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300 mx-4 border border-gray-100 flex flex-col">
                 <div class="bg-gray-50 border-b border-gray-100 p-5 flex justify-between items-center">
                     <div>
                         <span class="bg-orange-100 text-orange-600 text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-md mb-1 inline-block">Vista Staff</span>
                         <h3 class="text-lg font-black text-gray-900">{{ product.name }}</h3>
                     </div>
-                    <button onclick="window.AdminProducts.closeComboModal('staff-combo-{{ product.id }}')" class="text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full p-1.5 transition-colors">
+                    <button data-modal-close="staff-combo-{{ product.id }}" class="text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full p-1.5 transition-colors">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -225,7 +256,7 @@
 
             <form id="delete-form" method="POST" class="w-full flex items-center gap-4">
                 {% csrf_token %}
-                <button type="button" onclick="AdminModals.close('delete-modal')" class="flex-1 px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest rounded-[1.5rem] hover:bg-gray-50 transition-colors border border-gray-100">
+                <button type="button" data-modal-close="delete-modal" class="flex-1 px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest rounded-[1.5rem] hover:bg-gray-50 transition-colors border border-gray-100">
                     Cancelar
                 </button>
                 <button type="submit" class="flex-1 px-8 py-5 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-2xl shadow-red-100 hover:bg-red-700 active:scale-95 transition-all">
@@ -235,49 +266,14 @@
         </div>
     </div>
 </div>
-
-{% block extra_js %}
-<script src="{% static 'js/admin_modals.js' %}"></script>
-<script src="{% static 'js/admin_products.js' %}"></script>
-<script>
-    if (!window.AdminProducts) window.AdminProducts = {};
-    
-    window.AdminProducts.openComboModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                const content = modal.querySelector('.scale-95');
-                if (content) {
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                }
-            }, 10);
-            document.body.style.overflow = 'hidden';
-        }
-    };
-
-    window.AdminProducts.closeComboModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('opacity-0');
-            const content = modal.querySelector('.scale-100');
-            if (content) {
-                content.classList.remove('scale-100');
-                content.classList.add('scale-95');
-            }
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.style.overflow = '';
-            }, 300);
-        }
-    };
-</script>
 {% endblock %}
 
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
+
+{% block extra_css %}
 <style>
     @keyframes modal-enter {
         from { opacity: 0; transform: scale(0.92) translateY(20px); }
