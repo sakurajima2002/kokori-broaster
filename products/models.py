@@ -27,6 +27,20 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def original_value(self):
+        if not self.is_combo:
+            return self.price
+        return sum(detail.product_child.price * detail.quantity for detail in self.combo_details.all())
+
+    @property
+    def savings(self):
+        if not self.is_combo:
+            return 0
+        return self.original_value - self.price
+
+
+
 class ComboDetail(models.Model):
     combo_parent = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='combo_details', limit_choices_to={'is_combo': True})
     product_child = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='used_in_combos')

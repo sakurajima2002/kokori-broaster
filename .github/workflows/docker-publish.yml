@@ -15,6 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Environment
+        run: cp .env.example .env
+
       - name: Build Docker image
         run: |
           docker build -t myapp:test .

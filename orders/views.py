@@ -2,11 +2,11 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
-from roles.mixins import RolePermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
+from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
 from .models import Order, Delivery, Rating
 from . import selectors
 
-class OrderListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListingMixin, ListView):
+class OrderListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Order
     template_name = 'staff/orders/order_list.html'
     context_object_name = 'orders'
@@ -18,7 +18,7 @@ class OrderListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListin
     def get_queryset(self):
         return selectors.get_all_orders()
 
-class OrderDetailView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHeaderMixin, DetailView):
+class OrderDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, DetailView):
     model = Order
     template_name = 'staff/orders/order_detail.html'
     context_object_name = 'order'
@@ -31,7 +31,7 @@ class OrderDetailView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffHead
     def get_object(self):
         return selectors.get_order_by_id(self.kwargs.get('pk'))
 
-class DeliveryListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListingMixin, ListView):
+class DeliveryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Delivery
     template_name = 'staff/orders/delivery_list.html'
     context_object_name = 'deliveries'
@@ -43,7 +43,7 @@ class DeliveryListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffLis
     def get_queryset(self):
         return selectors.get_all_deliveries()
 
-class RatingListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListingMixin, ListView):
+class RatingListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Rating
     template_name = 'staff/orders/rating_list.html'
     context_object_name = 'ratings'
@@ -54,3 +54,4 @@ class RatingListView(LoginRequiredMixin, RolePermissionRequiredMixin, StaffListi
 
     def get_queryset(self):
         return selectors.get_all_ratings()
+

@@ -15,6 +15,8 @@
             <!-- Desktop Menu -->
             <div class="hidden md:flex items-center space-x-1">
                 <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Inicio</a>
+                <a href="{% url 'products:product_catalog' %}" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Menú</a>
+
                 
                 {% if user.is_authenticated %}
                     {% if user.is_staff %}
@@ -24,10 +26,11 @@
                     {% endif %}
                     
                     <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                    
                     <a href="#" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Mi Cuenta</a>
-                    <a href="{% url 'accounts:logout' %}" class="ml-4 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-100/50 hover:shadow-orange-200/50 transition-all duration-300">Cerrar Sesión</a>                    
+                    <a href="{% url 'accounts:logout' %}" class="ml-2 px-5 py-2.5 rounded-xl text-sm font-extrabold text-white bg-gray-900 hover:bg-orange-600 shadow-lg shadow-gray-200/50 transition-all duration-300">Salir</a>                    
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="ml-4 px-6 py-2.5 rounded-xl text-sm font-extrabold text-white bg-orange-600 hover:bg-orange-700 shadow-xl shadow-orange-100/50 hover:shadow-orange-200/50 transition-all duration-300">Iniciar Sesión</a>
+                    <a href="{% url 'accounts:login' %}" class="ml-2 px-6 py-2.5 rounded-xl text-sm font-extrabold text-white bg-gray-900 hover:bg-orange-600 shadow-lg shadow-gray-200/50 transition-all duration-300">Entrar</a>
                 {% endif %}
             </div>
 
@@ -45,7 +48,8 @@
     <!-- Mobile Menu (Hidden by default) -->
     <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-100 py-6 px-4 space-y-2 animate-in slide-in-from-top duration-300">
         <a href="/" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Inicio</a>
-        
+        <a href="{% url 'products:product_catalog' %}" class="block px-6 py-4 rounded-2xl text-base font-bold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all">Menú</a>
+
         {% if user.is_authenticated %}
             {% if user.is_staff %}
                 <div class="py-2 px-6"><span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admin Panel</span></div>
@@ -61,3 +65,12 @@
         {% endif %}
     </div>
 </nav>
+
+<script>
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+</script>

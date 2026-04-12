@@ -51,7 +51,13 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col min-w-0">
+                                    {% if product.is_combo %}
+                                    <button onclick="window.AdminProducts.openComboModal('staff-combo-{{ product.id }}')" class="text-left text-base font-black text-gray-900 tracking-tight leading-none mb-1 hover:text-orange-600 transition-colors truncate max-w-[200px] underline decoration-dotted decoration-gray-300 underline-offset-4 cursor-pointer">
+                                        {{ product.name }}
+                                    </button>
+                                    {% else %}
                                     <h4 class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors truncate max-w-[200px]">{{ product.name }}</h4>
+                                    {% endif %}
                                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate max-w-[200px]">{{ product.description|default:"Receta Original Kokori" }}</p>
                                 </div>
                             </div>
@@ -150,6 +156,58 @@
     </div>
 </div>
 
+<!-- Staff Combo Modals Container -->
+<div id="staff-modals-container">
+    {% for product in products %}
+        {% if product.is_combo %}
+        <div id="staff-combo-{{ product.id }}" class="fixed inset-0 z-[100] hidden items-center justify-center opacity-0 transition-opacity duration-300">
+            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="window.AdminProducts.closeComboModal('staff-combo-{{ product.id }}')"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300 mx-4 border border-gray-100 flex flex-col">
+                <div class="bg-gray-50 border-b border-gray-100 p-5 flex justify-between items-center">
+                    <div>
+                        <span class="bg-orange-100 text-orange-600 text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-md mb-1 inline-block">Vista Staff</span>
+                        <h3 class="text-lg font-black text-gray-900">{{ product.name }}</h3>
+                    </div>
+                    <button onclick="window.AdminProducts.closeComboModal('staff-combo-{{ product.id }}')" class="text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full p-1.5 transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="p-5">
+                    <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-50 pb-2">Desglose de items</h4>
+                    <ul class="space-y-2 mb-6 max-h-48 overflow-y-auto pr-2">
+                        {% for detail in product.combo_details.all %}
+                        <li class="flex items-center justify-between bg-white px-0 py-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-orange-600 w-5">{{ detail.quantity }}x</span>
+                                <span class="text-xs font-bold text-gray-700">{{ detail.product_child.name }}</span>
+                            </div>
+                            <span class="text-[10px] font-black text-gray-400 tabular-nums">${{ detail.product_child.price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold text-gray-500">Valor Sumado</span>
+                            <span class="text-xs font-bold text-gray-500 line-through">${{ product.original_value }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-gray-500">Precio del Combo</span>
+                            <span class="text-sm font-black text-gray-900">${{ product.price }}</span>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-gray-200/50 flex justify-between items-center">
+                            <span class="text-[9px] font-black uppercase text-green-600 tracking-widest">Diferencia / Ahorro</span>
+                            <span class="text-xs font-black text-green-600">${{ product.savings }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
 <!-- Delete Modal -->
 <div id="delete-modal" class="fixed inset-0 z-[100] hidden overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center">
     <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" data-modal-overlay></div>
@@ -181,6 +239,43 @@
 {% block extra_js %}
 <script src="{% static 'js/admin_modals.js' %}"></script>
 <script src="{% static 'js/admin_products.js' %}"></script>
+<script>
+    if (!window.AdminProducts) window.AdminProducts = {};
+    
+    window.AdminProducts.openComboModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                const content = modal.querySelector('.scale-95');
+                if (content) {
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.AdminProducts.closeComboModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('opacity-0');
+            const content = modal.querySelector('.scale-100');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+    };
+</script>
 {% endblock %}
 
 <style>
