@@ -1,4 +1,10 @@
 {% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
 
 {% block title %}Pedidos | Kokori Staff{% endblock %}
 
@@ -8,8 +14,29 @@
     <!-- Standardized Header -->
     {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
 
+    <!-- Search & Actions Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Seguimiento de Compras</h2>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {% include 'includes/search_input.html' with search_id='orderSearch' target_id='ordersTableBody' item_selector='tr' empty_state_id='orderEmptySearchState' placeholder='Buscar pedido...' %}
+        </div>
+    </div>
+
     <!-- Orders Table -->
     <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div id="orderEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron pedidos que coincidan</p>
+                <button onclick="document.getElementById('orderSearch').value=''; document.getElementById('orderSearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
@@ -19,10 +46,12 @@
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Fecha & Hora</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Total</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Estado</th>
+                        {% if perms.orders.view_order %}
                         <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Detalles</th>
+                        {% endif %}
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody id="ordersTableBody" class="divide-y divide-gray-50">
                     {% for order in orders %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
                         <td class="px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ order.id }}</td>
@@ -47,17 +76,17 @@
                                 {{ order.get_status_display }}
                             </span>
                         </td>
+                        {% if perms.orders.view_order %}
                         <td class="px-8 py-6 text-right">
-                            {% if perms.orders.view_order %}
                             <a href="{% url 'orders:order_detail' order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                             </a>
-                            {% endif %}
                         </td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                        <td colspan="{% if perms.orders.view_order %}6{% else %}5{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
                             No se encontraron pedidos registrados
                         </td>
                     </tr>

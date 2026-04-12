@@ -1,6 +1,12 @@
 {% extends "staff/staff_base.html" %}
+{% load static %}
 
-{% block title %}Envíos y Entregas | Kokori Staff{% endblock %}
+{% block title %}Envíos{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,8 +14,29 @@
     <!-- Standardized Header -->
     {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
 
+    <!-- Search & Actions Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Despachos en Curso</h2>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {% include 'includes/search_input.html' with search_id='deliverySearch' target_id='deliveriesTableBody' item_selector='tr' empty_state_id='deliveryEmptySearchState' placeholder='Buscar despacho...' %}
+        </div>
+    </div>
+
     <!-- Deliveries Table -->
     <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div id="deliveryEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron despachos que coincidan</p>
+                <button onclick="document.getElementById('deliverySearch').value=''; document.getElementById('deliverySearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
@@ -19,10 +46,12 @@
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Salida</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Entrega Estimada</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Seguimiento</th>
+                        {% if perms.orders.view_order %}
                         <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acción</th>
+                        {% endif %}
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody id="deliveriesTableBody" class="divide-y divide-gray-50">
                     {% for delivery in deliveries %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
                         <td class="px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ delivery.order.id }}</td>
@@ -43,17 +72,17 @@
                                 {{ delivery.tracking_number|default:"SIN TRACKING" }}
                             </span>
                         </td>
+                        {% if perms.orders.view_order %}
                         <td class="px-8 py-6 text-right">
-                            {% if perms.orders.view_order %}
                             <a href="{% url 'orders:order_detail' delivery.order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
-                            {% endif %}
                         </td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                        <td colspan="{% if perms.orders.view_order %}6{% else %}5{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
                             No hay entregas activas en sistema
                         </td>
                     </tr>

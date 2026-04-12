@@ -37,6 +37,16 @@
                     {{ cta_label }}
                 </span>
             </a>
+            {% elif cta_data_action %}
+            <button type="button" 
+                    data-action="{{ cta_data_action }}"
+                    data-url="{{ cta_data_url }}"
+                    class="group relative px-8 py-4 bg-gray-950 text-white rounded-[1.8rem] font-black text-xs uppercase tracking-widest overflow-hidden shadow-2xl shadow-gray-200 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95">
+                <span class="relative z-10 flex items-center">
+                    <svg class="mr-3 h-5 w-5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    {{ cta_label }}
+                </span>
+            </button>
             {% elif cta_onclick %}
             <button onclick="{{ cta_onclick }}" type="button" 
                     class="group relative px-8 py-4 bg-gray-950 text-white rounded-[1.8rem] font-black text-xs uppercase tracking-widest overflow-hidden shadow-2xl shadow-gray-200 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95">

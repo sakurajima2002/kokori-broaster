@@ -13,7 +13,6 @@ from . import selectors
 
 
 
-# ─────────────────────────── PUBLIC VIEWS ────────────────────────────── #
 
 class ProductCatalogView(View):
     template_name = 'products/product_catalog.html'
@@ -28,7 +27,6 @@ class ProductCatalogView(View):
         return render(request, self.template_name, context)
 
 
-# ─────────────────────────── CATEGORY VIEWS ─────────────────────────── #
 
 
 class CategoryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, View):
@@ -37,7 +35,7 @@ class CategoryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffLi
     header_title = "Gestión de Categorías"
     header_subtitle = "Organización Maestra del Menú"
     header_cta_label = "Añadir Categoría"
-    header_cta_onclick = "AdminProducts.openCategoryCreate(CATEGORY_URLS.create)"
+    header_cta_url = reverse_lazy('products:category_create')
     count_label = "Total Categorías"
 
     def get(self, request, *args, **kwargs):
@@ -85,7 +83,6 @@ class CategoryDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, View)
         return redirect('products:category_list')
 
 
-# ─────────────────────────── PRODUCT VIEWS ──────────────────────────── #
 
 class ProductListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Product

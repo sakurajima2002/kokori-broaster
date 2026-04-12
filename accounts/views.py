@@ -9,6 +9,9 @@ from django.urls import reverse_lazy
 
 from .models import User, Address
 from .forms import LoginUserForm, RegisterUserForm
+from products.models import Product
+from orders.models import Order
+from django.db.models import Sum
 
 class LoginUserView(View):
     template_login = 'users/accounts/login.html'
@@ -51,9 +54,39 @@ class HomeView(StaffHeaderMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_staff:
-            users = User.objects.exclude(id=request.user.id)
+            # Metrics
+            try:
+                threshold = int(request.GET.get('stock_threshold', 5))
+                if threshold < 0: threshold = 0
+            except (ValueError, TypeError):
+                threshold = 5
+                
+            total_users = User.objects.count()
+            total_products = Product.objects.count()
+            low_stock_products = Product.objects.filter(stock__lte=threshold).order_by('stock')
+            low_stock_count = low_stock_products.count()
+            
+            total_orders = Order.objects.count()
+            pending_orders_count = Order.objects.filter(status='pending').count()
+            
+            total_sales = Order.objects.filter(
+                status__in=['paid', 'delivered']
+            ).aggregate(Sum('total'))['total__sum'] or 0
+            
+            recent_orders = Order.objects.all().order_by('-order_date')[:5]
+
             context = self.get_context_data()
-            context.update({'users': users})
+            context.update({
+                'total_users': total_users,
+                'total_products': total_products,
+                'low_stock_products': low_stock_products,
+                'low_stock_count': low_stock_count,
+                'total_orders': total_orders,
+                'pending_orders_count': pending_orders_count,
+                'total_sales': total_sales,
+                'recent_orders': recent_orders,
+                'stock_threshold': threshold,
+            })
             return render(request, 'staff/dashboard.html', context)
         return render(request, 'users/home.html')
 
@@ -67,7 +100,6 @@ class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListin
     count_label = "Usuarios Registrados"
 
     def get_queryset(self):
-        # Excluir al usuario actual del listado
         return super().get_queryset().exclude(id=self.request.user.id)
 
 class UserDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, DetailView):

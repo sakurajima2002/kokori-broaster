@@ -11,7 +11,7 @@ class StaffPermissionRequiredMixin(PermissionRequiredMixin):
         return user.is_authenticated and user.is_staff and super().has_permission()
 
 class StaffHeaderMixin:
-    """Mixin to provide context for the standardized admin header."""
+    
     header_title = ""
     header_subtitle = ""
     header_cta_label = None
@@ -38,12 +38,11 @@ class StaffHeaderMixin:
         return context
 
 class StaffListingMixin(StaffHeaderMixin):
-    """Specific mixin for list views that includes count stats."""
+    
     count_label = "Total Registros"
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Try to get count from object_list or queryset
         object_list = context.get('object_list')
         if object_list is not None:
             context['header_config']['count_value'] = object_list.count()
