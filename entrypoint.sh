@@ -2,6 +2,9 @@
 
 set -e
 
+echo "Recopilando archivos estáticos..."
+python manage.py collectstatic --noinput
+
 echo "Generando migraciones..."
 python manage.py makemigrations --noinput
 
