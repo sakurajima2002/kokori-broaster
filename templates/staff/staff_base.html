@@ -65,7 +65,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/sidebar.js' %}"></script>
-<script src="{% static 'js/admin_modals.js' %}"></script>
-<script src="{% static 'js/admin_suite.js' %}"></script>
+    <!-- Core Admin Scripts -->
+    <script type="module" src="{% static 'js/admin_bundle_v2.js' %}"></script>
+    <script type="module" src="{% static 'js/sidebar.js' %}"></script>
 {% endblock %}

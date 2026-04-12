@@ -1,10 +1,15 @@
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 
 from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
+from products.models import Product
 from .models import Order, Delivery, Rating
 from . import selectors
+from .cart import Cart
+
 
 class OrderListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = Order
@@ -55,3 +60,31 @@ class RatingListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffList
     def get_queryset(self):
         return selectors.get_all_ratings()
 
+
+
+class CartAddView(View):
+    def post(self, request, product_id):
+        cart = Cart(request)
+        product = get_object_or_404(Product, id=product_id)
+        quantity = int(request.POST.get('quantity', 1))
+        override = request.POST.get('override', 'False').lower() == 'true'
+        cart.add(product=product, quantity=quantity, override_quantity=override)
+        
+        if request.headers.get('HX-Request'):
+            return render(request, 'orders/cart_modal_partial.html', {'cart': cart})
+        return redirect('products:product_catalog')
+
+class CartRemoveView(View):
+    def post(self, request, product_id):
+        cart = Cart(request)
+        product = get_object_or_404(Product, id=product_id)
+        cart.remove(product)
+        
+        if request.headers.get('HX-Request'):
+            return render(request, 'orders/cart_modal_partial.html', {'cart': cart})
+        return redirect('products:product_catalog')
+
+class CartDetailView(View):
+    def get(self, request):
+        cart = Cart(request)
+        return render(request, 'orders/cart_modal_partial.html', {'cart': cart})

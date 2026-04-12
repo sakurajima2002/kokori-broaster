@@ -1,4 +1,5 @@
 {% extends "staff/staff_base.html" %}
+{% load static %}
 
 {% block title %}{% if object %}Editar Rol: {{ object.name }}{% else %}Nuevo Rol{% endif %}{% endblock %}
 
@@ -35,20 +36,24 @@
 
             <!-- Permissions Section -->
             <div class="space-y-6">
-                <div class="flex items-center gap-3 mb-2 px-2">
-                    <span class="h-4 w-1 bg-orange-600 rounded-full"></span>
-                    <h3 class="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">Permisos y Capacidades</h3>
+                <div class="flex items-center justify-between gap-3 mb-2 px-2">
+                    <div class="flex items-center gap-3">
+                        <span class="h-4 w-1 bg-orange-600 rounded-full"></span>
+                        <h3 class="text-[10px] font-black text-gray-900 uppercase tracking-[0.3em]">Permisos y Capacidades</h3>
+                    </div>
+                    {% include 'includes/search_input.html' with search_id='permissionSearch' target_id='permissionsGrid' item_selector='.permission-item' empty_state_id='searchEmptyState' placeholder='Buscar permiso...' %}
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto p-4 bg-gray-50 rounded-[2rem] border border-gray-100 custom-scrollbar">
+
+                <div id="permissionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto p-4 bg-gray-50 rounded-[2rem] border border-gray-100 custom-scrollbar">
                     {% for choice in form.permissions %}
-                    <label class="relative flex items-center p-4 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-orange-200 hover:shadow-sm transition-all group">
+                    <label class="permission-item relative flex items-center p-4 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-orange-200 hover:shadow-sm transition-all group">
                         <div class="flex items-center h-5">
                             <input type="checkbox" name="permissions" id="{{ choice.id_for_label }}" value="{{ choice.data.value }}" 
                                    {% if choice.data.selected %}checked{% endif %}
                                    class="h-5 w-5 rounded-md border-gray-200 text-orange-600 focus:ring-orange-500 focus:ring-offset-0 transition-all cursor-pointer">
                         </div>
                         <div class="ml-4 flex flex-col">
-                            <span class="text-[11px] font-black text-gray-900 uppercase tracking-tight group-hover:text-orange-600 transition-colors">
+                            <span class="permission-label text-[11px] font-black text-gray-900 uppercase tracking-tight group-hover:text-orange-600 transition-colors">
                                 {{ choice.choice_label }}
                             </span>
                             <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Capacidad de sistema</span>
@@ -57,6 +62,12 @@
                     {% endfor %}
                 </div>
             </div>
+
+            <!-- Empty info for search -->
+            <div id="searchEmptyState" class="hidden py-12 text-center bg-gray-50 rounded-[2rem] border border-dashed border-gray-200">
+                <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] italic">No se encontraron permisos que coincidan</p>
+            </div>
+
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-end gap-4 pt-8 border-t border-gray-50">
@@ -73,6 +84,11 @@
         </form>
     </div>
 </div>
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
 
 <style>
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }

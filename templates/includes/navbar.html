@@ -17,6 +17,19 @@
                 <a href="/" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Inicio</a>
                 <a href="{% url 'products:product_catalog' %}" class="px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200">Menú</a>
 
+                <!-- Cart Icon -->
+                <button hx-get="{% url 'orders:cart_detail' %}" 
+                        hx-target="#cart-modal-content"
+                        onclick="openCartModal()"
+                        class="relative p-2.5 rounded-xl text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 group focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span id="cart-count-badge" class="{% if cart|length == 0 %}hidden{% endif %} absolute top-1 right-1 h-4 w-4 bg-orange-600 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">
+                        {{ cart|length }}
+                    </span>
+                </button>
+
                 
                 {% if user.is_authenticated %}
                     {% if user.is_staff %}
@@ -66,11 +79,26 @@
     </div>
 </nav>
 
-<script>
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
+<!-- Cart Side Drawer Modal -->
+<div id="cart-modal" class="fixed inset-0 z-[100] hidden">
+    <!-- Backdrop -->
+    <div id="cart-backdrop" class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeCartModal()"></div>
+    
+    <!-- Drawer Content -->
+    <div id="cart-drawer" class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl translate-x-full transition-transform duration-300 ease-out border-l border-gray-100 flex flex-col">
+        <div id="cart-modal-content" class="h-full">
+            <!-- Content will be loaded here via HTMX -->
+            <div class="h-full flex items-center justify-center p-12">
+                <div class="flex flex-col items-center">
+                    <div class="h-10 w-10 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Cargando Orden...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    mobileMenuButton.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-</script>
+{% block extra_js %}
+<script type="module" src="{% static 'js/navbar.js' %}"></script>
+<script type="module" src="{% static 'js/cart.js' %}"></script>
+{% endblock %}

@@ -1,6 +1,12 @@
 {% extends "staff/staff_base.html" %}
+{% load static %}
 
 {% block title %}Roles y Grupos | Kokori Staff{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,8 +18,29 @@
     {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
     {% endif %}
 
+    <!-- Search & Actions Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Roles de Sistema</h2>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {% include 'includes/search_input.html' with search_id='roleSearch' target_id='rolesTableBody' item_selector='tr' empty_state_id='roleEmptySearchState' placeholder='Buscar rol...' %}
+        </div>
+    </div>
+
     <!-- Groups Table -->
     <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div id="roleEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron roles que coincidan</p>
+                <button onclick="document.getElementById('roleSearch').value=''; document.getElementById('roleSearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
@@ -21,10 +48,12 @@
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre del Rol</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Permisos Vinculados</th>
                         <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nivel de Acceso</th>
+                        {% if perms.auth.change_group or perms.auth.delete_group %}
                         <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+                        {% endif %}
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody id="rolesTableBody" class="divide-y divide-gray-50">
                     {% for group in groups %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
                         <td class="px-8 py-6">
@@ -53,6 +82,7 @@
                                 <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100 text-[9px] font-black uppercase tracking-widest">Operativo / Estándar</span>
                             {% endif %}
                         </td>
+                        {% if perms.auth.change_group or perms.auth.delete_group %}
                         <td class="px-8 py-6 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 {% if perms.auth.change_group %}
@@ -63,18 +93,24 @@
                                 </a>
                                 {% endif %}
                                 {% if perms.auth.delete_group %}
-                                <a href="{% url 'roles:group_delete' group.pk %}" class="p-3 text-gray-400 hover:text-red-500 transition-all rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100" title="Eliminar Rol">
+                                <button
+                                    data-action="role-delete"
+                                    data-url="{% url 'roles:group_delete' group.pk %}"
+                                    data-name="{{ group.name|escapejs }}"
+                                    class="p-3 text-gray-400 hover:text-red-500 transition-all rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100" 
+                                    title="Eliminar Rol">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                                     </svg>
-                                </a>
+                                </button>
                                 {% endif %}
                             </div>
                         </td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                        <td colspan="{% if perms.auth.change_group or perms.auth.delete_group %}4{% else %}3{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
                             No hay roles definidos en sistema
                         </td>
                     </tr>
@@ -84,4 +120,43 @@
         </div>
     </div>
 </div>
+
+<!-- ─────────── Delete Role Modal ─────────── -->
+<div id="delete-role-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-overlay></div>
+
+    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50 animate-modal-enter">
+        <div class="flex flex-col items-center text-center">
+            <div class="h-20 w-20 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mb-6 border-4 border-white shadow-xl">
+                <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </div>
+
+            <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase italic leading-none mb-3">¿Eliminar Rol?</h2>
+            <p class="text-sm text-gray-400 font-medium leading-relaxed mb-8 px-4">
+                Estás a punto de eliminar el rol <span id="delete-role-name" class="font-black text-gray-900"></span>.
+                Esta acción es irreversible y afectará a los usuarios vinculados.
+            </p>
+
+            <form id="delete-role-form" method="POST" class="w-full flex items-center gap-3">
+                {% csrf_token %}
+                <button type="button" data-modal-close="delete-role-modal"
+                        class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100 transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="flex-1 px-6 py-4 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-100 hover:bg-red-700 active:scale-95 transition-all">
+                    Sí, Eliminar
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes modal-enter {
+        from { opacity: 0; transform: scale(0.93) translateY(16px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal-enter { animation: modal-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>
 {% endblock %}
