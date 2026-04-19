@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'orders',
     
     'widget_tweaks',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -78,6 +80,12 @@ if DJANGO_ENV == 'prod':
             conn_health_checks=True,
         )
     }
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 else:
     DATABASES = {
         'default': {
