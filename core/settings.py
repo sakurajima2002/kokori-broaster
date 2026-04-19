@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'accounts',
@@ -32,7 +33,6 @@ INSTALLED_APPS = [
     'orders',
     
     'widget_tweaks',
-    'cloudinary_storage',
     'cloudinary',
 ]
 
