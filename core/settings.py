@@ -1,10 +1,13 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+DJANGO_ENV = os.getenv('DJANGO_ENV', 'dev')
+load_dotenv(os.path.join(BASE_DIR, f'.env.{DJANGO_ENV}'))
+
 
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-for-dev-only')
@@ -67,12 +70,21 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DJANGO_ENV == 'prod':
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 
