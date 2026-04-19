@@ -118,13 +118,12 @@ class ProductCreateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffH
         form = ProductForm(request.POST, request.FILES)
         formset = ComboDetailFormSet(request.POST, request.FILES, prefix='combo_details')
 
-        if form.is_valid():
+        if form.is_valid() and formset.is_valid():
             with transaction.atomic():
                 product = form.save()
                 if product.is_combo:
-                    formset = ComboDetailFormSet(request.POST, request.FILES, instance=product, prefix='combo_details')
-                    if formset.is_valid():
-                        formset.save()
+                    formset.instance = product
+                    formset.save()
             messages.success(request, f'Producto "{product.name}" creado correctamente.')
             return redirect('products:product_list')
 
@@ -159,12 +158,11 @@ class ProductUpdateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffH
         form = ProductForm(request.POST, request.FILES, instance=product)
         formset = ComboDetailFormSet(request.POST, request.FILES, instance=product, prefix='combo_details')
 
-        if form.is_valid():
+        if form.is_valid() and formset.is_valid():
             with transaction.atomic():
                 product = form.save()
                 if product.is_combo:
-                    if formset.is_valid():
-                        formset.save()
+                    formset.save()
                 else:
                     product.combo_details.all().delete()
             messages.success(request, f'Producto "{product.name}" actualizado correctamente.')
