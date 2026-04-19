@@ -19,7 +19,6 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 INSTALLED_APPS = [
-    'cloudinary_storage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     'orders',
     
     'widget_tweaks',
+    'cloudinary_storage',
     'cloudinary',
 ]
 
@@ -90,15 +90,12 @@ if DJANGO_ENV == 'prod':
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
-    # Compatibilidad con django-cloudinary-storage
+    # Compatibilidad
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # Evitar errores por imports de Tailwind v4 en WhiteNoise
-    WHITENOISE_MANIFEST_STRICT = False
-    WHITENOISE_IGNORE_FILES = ['src/*']
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     DATABASES = {
         'default': {
