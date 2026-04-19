@@ -96,6 +96,9 @@ if DJANGO_ENV == 'prod':
     # Compatibilidad con django-cloudinary-storage
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Evitar errores por imports de Tailwind v4 en WhiteNoise
+    WHITENOISE_MANIFEST_STRICT = False
+    WHITENOISE_IGNORE_FILES = ['src/*']
 else:
     DATABASES = {
         'default': {
