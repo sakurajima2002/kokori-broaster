@@ -3,15 +3,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from django.db import transaction
 from django.contrib import messages
-from django.utils import timezone
 
 from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
 from products.models import Product
 from accounts.models import Address
 from accounts.forms import AddressForm
-from .models import Order, OrderDetail, Delivery, Rating, Payment
+from .models import Order, Delivery, Rating, Payment
 from . import selectors, services
 from .cart import Cart
 
