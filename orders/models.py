@@ -4,15 +4,16 @@ from products.models import Product
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('paid', 'Paid'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
+        ('pending', 'Pendiente'),
+        ('paid', 'Pagado'),
+        ('preparing', 'En preparación'),
+        ('shipped', 'Enviado'),
+        ('delivered', 'Entregado'),
+        ('cancelled', 'Cancelado'),
     ]
     DELIVERY_METHOD_CHOICES = [
-        ('delivery', 'Delivery'),
-        ('pickup', 'Pickup'),
+        ('delivery', 'Domicilio'),
+        ('pickup', 'Recoger'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
@@ -45,14 +46,13 @@ class OrderDetail(models.Model):
 
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('card', 'Card'),
-        ('transfer', 'Transfer'),
-        ('cash', 'Cash'),
+        ('card', 'Tarjeta'),
+        ('transfer', 'Transferencia'),
     ]
     PAYMENT_STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
+        ('pending', 'Pendiente'),
+        ('completed', 'Completado'),
+        ('failed', 'Fallido'),
     ]
 
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')

@@ -19,13 +19,13 @@
     {% endif %}
 
     <!-- Search & Actions Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-4">
         <div class="flex items-center gap-4">
             <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
             <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Roles de Sistema</h2>
         </div>
         
-        <div class="flex flex-col sm:flex-row items-center gap-4">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
             {% include 'includes/search_input.html' with search_id='roleSearch' target_id='rolesTableBody' item_selector='tr' empty_state_id='roleEmptySearchState' placeholder='Buscar rol...' %}
         </div>
     </div>
@@ -45,18 +45,18 @@
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
                     <tr>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre del Rol</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Permisos Vinculados</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nivel de Acceso</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre del Rol</th>
+                        <th class="hidden sm:table-cell px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Permisos</th>
+                        <th class="hidden md:table-cell px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nivel</th>
                         {% if perms.auth.change_group or perms.auth.delete_group %}
-                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
                         {% endif %}
                     </tr>
                 </thead>
                 <tbody id="rolesTableBody" class="divide-y divide-gray-50">
                     {% for group in groups %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
-                        <td class="px-8 py-6">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
                             <div class="flex items-center gap-4">
                                 <div class="h-12 w-12 rounded-xl bg-gray-950 text-white flex items-center justify-center font-black text-sm uppercase italic shadow-lg shadow-gray-200 flex-shrink-0">
                                     {{ group.name|slice:":1"|upper }}
@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-8 py-6">
+                        <td class="hidden sm:table-cell px-8 py-6">
                             <div class="flex items-center gap-2">
                                 <span class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-orange-600 text-[10px] font-black text-white shadow-xl shadow-orange-100">
                                     {{ group.permissions.count }}
@@ -75,7 +75,7 @@
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Permisos Activos</span>
                             </div>
                         </td>
-                        <td class="px-8 py-6">
+                        <td class="hidden md:table-cell px-8 py-6">
                             {% if group.name == 'Admin' or group.name == 'Superuser' %}
                                 <span class="px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-100 text-[9px] font-black uppercase tracking-widest">Crítico / Maestro</span>
                             {% else %}
@@ -83,7 +83,7 @@
                             {% endif %}
                         </td>
                         {% if perms.auth.change_group or perms.auth.delete_group %}
-                        <td class="px-8 py-6 text-right">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 {% if perms.auth.change_group %}
                                 <a href="{% url 'roles:group_edit' group.pk %}" class="p-3 text-gray-400 hover:text-orange-600 transition-all rounded-xl hover:bg-orange-50 border border-transparent hover:border-orange-100" title="Editar Rol">

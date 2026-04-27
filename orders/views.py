@@ -3,12 +3,79 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.contrib import messages
 
 from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
 from products.models import Product
-from .models import Order, Delivery, Rating
-from . import selectors
+from accounts.models import Address
+from accounts.forms import AddressForm
+from .models import Order, Delivery, Rating, Payment
+from . import selectors, services
 from .cart import Cart
+
+
+class CheckoutView(LoginRequiredMixin, View):
+    template_name = 'orders/checkout.html'
+
+    def get(self, request):
+        cart = Cart(request)
+        if len(cart) == 0:
+            messages.warning(request, "Tu carrito está vacío.")
+            return redirect('products:product_catalog')
+            
+        addresses = request.user.addresses.all()
+        address_form = AddressForm()
+        
+        return render(request, self.template_name, {
+            'cart': cart,
+            'addresses': addresses,
+            'address_form': address_form,
+            'payment_methods': Payment.PAYMENT_METHOD_CHOICES
+        })
+
+    def post(self, request):
+        cart = Cart(request)
+        if len(cart) == 0:
+            return redirect('products:product_catalog')
+
+        address_id = request.POST.get('address_id')
+        payment_method = request.POST.get('payment_method', 'card')
+        address = None
+        
+        if address_id:
+            address = get_object_or_404(Address, id=address_id, user=request.user)
+        else:
+            address_form = AddressForm(request.POST)
+            if address_form.is_valid():
+                address = address_form.save(commit=False)
+                address.user = request.user
+                address.save()
+            else:
+                addresses = request.user.addresses.all()
+                return render(request, self.template_name, {
+                    'cart': cart,
+                    'addresses': addresses,
+                    'address_form': address_form,
+                    'payment_methods': Payment.PAYMENT_METHOD_CHOICES
+                })
+
+        try:
+            services.process_checkout(
+                user=request.user,
+                cart=cart,
+                address=address,
+                payment_method=payment_method
+            )
+            cart.clear()
+            messages.success(request, "¡Pedido y envío generados con éxito!")
+            return redirect('home')
+
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect('orders:checkout')
+        except Exception as e:
+            messages.error(request, f"Ocurrió un error al procesar tu pedido: {str(e)}")
+            return redirect('orders:checkout')
 
 
 class OrderListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
@@ -59,6 +126,30 @@ class RatingListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffList
 
     def get_queryset(self):
         return selectors.get_all_ratings()
+
+class PaymentListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+    model = Payment
+    template_name = 'staff/orders/payment_list.html'
+    context_object_name = 'payments'
+    permission_required = 'orders.view_payment'
+    header_title = "Gestión de Pagos"
+    header_subtitle = "Monitoreo de Transacciones y Finanzas"
+    count_label = "Total Pagos"
+
+    def get_queryset(self):
+        return selectors.get_all_payments()
+class UpdateDeliveryStatusView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
+    permission_required = 'orders.change_delivery'
+
+    def post(self, request, pk):
+        order = get_object_or_404(Order, id=pk)
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            services.update_order_status(order, new_status)
+            messages.success(request, f"Estado del pedido #{order.id} actualizado a {new_status}.")
+        else:
+            messages.error(request, "Estado no válido.")
+        return redirect('orders:delivery_list')
 
 
 

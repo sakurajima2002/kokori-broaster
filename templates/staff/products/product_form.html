@@ -12,7 +12,7 @@
 
 
     <!-- Form Card -->
-    <div class="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-8 sm:p-12 mb-20 transition-all hover:shadow-md">
+    <div class="max-w-4xl mx-auto bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-6 sm:p-12 mb-20 transition-all hover:shadow-md">
 
 
         <form action="{% if product %}{% url 'products:product_update' product.pk %}{% else %}{% url 'products:product_create' %}{% endif %}"
@@ -154,7 +154,7 @@
                         </div>
                         
                         <label for="id_image" class="block cursor-pointer">
-                            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white rounded-[2rem] p-10 transition-all duration-300 group-hover:border-orange-300 group-hover:bg-orange-50/20 active:scale-[0.98]">
+                            <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-white rounded-[2rem] p-6 sm:p-10 transition-all duration-300 group-hover:border-orange-300 group-hover:bg-orange-50/20 active:scale-[0.98]">
                                 
                                 <!-- Dynamic Preview / Icon Area -->
                                 <div class="relative h-24 w-24 mb-6">

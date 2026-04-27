@@ -1,0 +1,117 @@
+{% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/search_filter.js' %}"></script>
+{% endblock %}
+
+{% block title %}Pagos | Kokori Staff{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Standardized Header -->
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
+
+    <!-- Search & Actions Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+        <div class="flex items-center gap-4">
+            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Transacciones Financieras</h2>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            {% include 'includes/search_input.html' with search_id='paymentSearch' target_id='paymentsTableBody' item_selector='tr' empty_state_id='paymentEmptySearchState' placeholder='Buscar pago...' %}
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        <div id="paymentEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron pagos que coincidan</p>
+                <button onclick="document.getElementById('paymentSearch').value=''; document.getElementById('paymentSearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50/60 border-b border-gray-100">
+                    <tr>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Orden</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Cliente</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Método</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Estado</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Referencia</th>
+                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Fecha</th>
+                        {% if perms.orders.view_order %}
+                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Detalles</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody" class="divide-y divide-gray-50">
+                    {% for payment in payments %}
+                    <tr class="group hover:bg-orange-50/20 transition-all duration-300">
+                        <td class="px-8 py-6">
+                            <span class="text-sm font-black text-gray-400 tracking-tighter italic group-hover:text-orange-600 transition-colors">#{{ payment.order.id }}</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex flex-col">
+                                <span class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 uppercase italic">{{ payment.order.user.get_full_name|default:payment.order.user.username }}</span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ payment.order.user.email }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                                <div class="h-8 w-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
+                                    {% if payment.payment_method == 'card' %}
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    {% elif payment.payment_method == 'transfer' %}
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                    {% else %}
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    {% endif %}
+                                </div>
+                                <span class="text-xs font-black text-gray-900 uppercase tracking-widest">{{ payment.get_payment_method_display }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
+                                {% if payment.status == 'completed' %}bg-emerald-100 text-emerald-700
+                                {% elif payment.status == 'failed' %}bg-red-100 text-red-700
+                                {% else %}bg-orange-100 text-orange-700{% endif %}">
+                                {{ payment.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <code class="text-[10px] font-black text-gray-400 bg-gray-50 px-2 py-1 rounded-md tracking-wider">
+                                {{ payment.transaction_ref|default:"SIN REF" }}
+                            </code>
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="text-sm text-gray-600 font-medium italic">{{ payment.payment_date|date:"d M Y" }}</span>
+                        </td>
+                        {% if perms.orders.view_order %}
+                        <td class="px-8 py-6 text-right">
+                            <a href="{% url 'orders:order_detail' payment.order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if perms.orders.view_order %}7{% else %}6{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                            No se encontraron transacciones registradas
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
