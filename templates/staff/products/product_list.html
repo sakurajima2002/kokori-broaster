@@ -42,12 +42,12 @@
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
                     <tr>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Producto</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Tipo & Categoría</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Precio</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Stock</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Producto</th>
+                        <th class="hidden sm:table-cell px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Tipo & Categoría</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Precio</th>
+                        <th class="hidden md:table-cell px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Stock</th>
                         {% if perms.products.change_product or perms.products.delete_product %}
-                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
                         {% endif %}
                     </tr>
                 </thead>
@@ -55,7 +55,7 @@
                     {% for product in products %}
                     <tr class="group hover:bg-orange-50/20 transition-all duration-300">
                         <!-- Product Image + Name -->
-                        <td class="px-8 py-6">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
                             <div class="flex items-center gap-5">
                                 <div class="relative h-16 w-16 flex-shrink-0">
                                     <div class="absolute inset-0 bg-orange-500/10 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -90,7 +90,7 @@
                         </td>
 
                         <!-- Type & Category -->
-                        <td class="px-8 py-6">
+                        <td class="hidden sm:table-cell px-8 py-6">
                             <div class="flex flex-col gap-2">
                                 {% if product.is_combo %}
                                     <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 text-white rounded-xl shadow-sm shadow-orange-100 w-fit">
@@ -108,7 +108,7 @@
                         </td>
 
                         <!-- Price -->
-                        <td class="px-8 py-6">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
                             <div class="flex flex-col">
                                 <span class="text-lg font-black text-gray-900 tabular-nums tracking-tighter">
                                     <span class="text-gray-300 text-xs font-bold">$</span>{{ product.price }}
@@ -118,7 +118,7 @@
                         </td>
 
                         <!-- Stock -->
-                        <td class="px-8 py-6">
+                        <td class="hidden md:table-cell px-8 py-6">
                             <div class="flex flex-col gap-2">
                                 <div class="flex justify-between items-center w-28">
                                     <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Stock</span>
@@ -137,7 +137,7 @@
 
                         <!-- Actions -->
                         {% if perms.products.change_product or perms.products.delete_product %}
-                        <td class="px-8 py-6">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
                             <div class="flex items-center justify-end gap-2">
                                 <!-- Edit -->
                                 {% if perms.products.change_product %}

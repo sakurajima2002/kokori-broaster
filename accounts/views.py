@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
 from .models import User, Address
-from .forms import LoginUserForm, RegisterUserForm
+from .forms import LoginUserForm, RegisterUserForm, UserProfileForm
 from products.models import Product
 from orders.models import Order
 from django.db.models import Sum
@@ -139,3 +139,52 @@ class AddressDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, Detail
     template_name = 'users/accounts/address_detail.html'
     context_object_name = 'address'
     permission_required = 'accounts.view_address'
+
+
+class MyAccountView(LoginRequiredMixin, View):
+    template_name = 'users/accounts/my_account.html'
+
+    def get(self, request):
+        form = UserProfileForm(instance=request.user)
+        addresses = request.user.addresses.all()
+        recent_orders = Order.objects.filter(user=request.user).select_related(
+            'delivery', 'payment'
+        ).prefetch_related('details__product').order_by('-order_date')[:3]
+        return render(request, self.template_name, {
+            'form': form,
+            'addresses': addresses,
+            'recent_orders': recent_orders,
+        })
+
+    def post(self, request):
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '¡Datos actualizados correctamente!')
+            return redirect('accounts:my_account')
+        addresses = request.user.addresses.all()
+        recent_orders = Order.objects.filter(user=request.user).order_by('-order_date')[:3]
+        return render(request, self.template_name, {
+            'form': form,
+            'addresses': addresses,
+            'recent_orders': recent_orders,
+        })
+
+
+class DeleteAddressView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        from django.shortcuts import get_object_or_404
+        address = get_object_or_404(Address, pk=pk, user=request.user)
+        address.delete()
+        messages.success(request, 'Dirección eliminada correctamente.')
+        return redirect('accounts:my_account')
+
+
+class MyOrdersView(LoginRequiredMixin, View):
+    template_name = 'users/accounts/my_orders.html'
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).select_related(
+            'delivery', 'payment', 'address'
+        ).prefetch_related('details__product').order_by('-order_date')
+        return render(request, self.template_name, {'orders': orders})

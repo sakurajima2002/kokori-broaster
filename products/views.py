@@ -19,7 +19,7 @@ class ProductCatalogView(View):
 
     def get(self, request, *args, **kwargs):
         categories = selectors.get_all_categories()
-        categories_with_products = [cat for cat in categories if cat.products.exists()]
+        categories_with_products = [cat for cat in categories if cat.products.all()]
         
         context = {
             'categories': categories_with_products,
