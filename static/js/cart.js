@@ -38,15 +38,15 @@ document.body.addEventListener('htmx:afterSwap', (event) => {
         const root = event.detail.target.querySelector('[data-cart-count]');
         if (root) {
             const count = root.getAttribute('data-cart-count');
-            const cartCountBadge = document.getElementById('cart-count-badge');
-            if (cartCountBadge) {
-                cartCountBadge.textContent = count;
+            const cartCountBadges = document.querySelectorAll('.cart-count-badge');
+            cartCountBadges.forEach(badge => {
+                badge.textContent = count;
                 if (count === '0') {
-                    cartCountBadge.classList.add('hidden');
+                    badge.classList.add('hidden');
                 } else {
-                    cartCountBadge.classList.remove('hidden');
+                    badge.classList.remove('hidden');
                 }
-            }
+            });
         }
     }
 });
