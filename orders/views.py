@@ -1,11 +1,12 @@
-from django.db.models import ProtectedError, Count
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.db.models import ProtectedError
+from django.views.generic import ListView, DetailView, UpdateView, View
 from django import forms
 from django.forms import inlineformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
 from products.models import Product
@@ -318,8 +319,12 @@ class StaffRatingDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, Vi
         rating = get_object_or_404(Rating, id=pk)
         rating.delete()
         messages.success(request, "Calificación eliminada exitosamente por el staff.")
-        referer = request.META.get('HTTP_REFERER')
-        if referer:
+        referer = request.META.get('HTTP_REFERER', '')
+        if referer and url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
             return redirect(referer)
         return redirect('orders:rating_list')
 
