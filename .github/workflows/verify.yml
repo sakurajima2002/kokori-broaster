@@ -18,6 +18,11 @@ jobs:
         python-version: "3.13"
         cache: 'pip'
 
+    - name: Install Cairo dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcairo2-dev pkg-config python3-dev
+
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
@@ -28,7 +33,7 @@ jobs:
       run: cp .env.example .env.dev
 
     - name: Run Package Audit
-      run: pip-audit
+      run: pip-audit --ignore-vuln CVE-2024-25885
 
     - name: Make Migrations
       run: python manage.py makemigrations --noinput

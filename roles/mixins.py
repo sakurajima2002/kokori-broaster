@@ -45,6 +45,19 @@ class StaffListingMixin(StaffHeaderMixin):
         context = super().get_context_data(**kwargs)
         object_list = context.get('object_list')
         if object_list is not None:
-            context['header_config']['count_value'] = object_list.count()
+            # Handle paginated querysets vs normal lists
+            if hasattr(object_list, 'count') and not hasattr(context.get('page_obj'), 'paginator'):
+                context['header_config']['count_value'] = object_list.count()
+            elif context.get('paginator'):
+                context['header_config']['count_value'] = context['paginator'].count
             context['header_config']['count_label'] = self.count_label
         return context
+
+class StaffPaginationMixin:
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('paginate_by', self.paginate_by)
+
+    def get_template_names(self):
+        if self.request.headers.get('HX-Request'):
+            return [self.template_name.replace('.html', '_partial.html')]
+        return [self.template_name]

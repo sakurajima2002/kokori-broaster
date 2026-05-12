@@ -103,6 +103,7 @@ class AccountsViewsTest(TestCase):
             'email': 'user@example.com',
             'document_number': '1111',
             'document_type': 'CC',
+            'update_profile': '',
         })
         self.assertRedirects(response, reverse('accounts:my_account'))
         self.user.refresh_from_db()

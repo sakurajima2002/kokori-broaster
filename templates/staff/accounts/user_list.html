@@ -13,95 +13,8 @@
     {% include 'includes/list_toolbar.html' with toolbar_title="Personal Registrado" search_id="userSearch" target_id="usersTableBody" empty_state_id="userEmptySearchState" search_placeholder="Buscar empleado..." %}
 
     <!-- Groups Table -->
-    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
-        <!-- Empty Search State -->
-        {% include 'includes/empty_search_state.html' with empty_id="userEmptySearchState" search_id="userSearch" message="No se encontraron empleados que coincidan" %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50/60 border-b border-gray-100">
-                    <tr>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Identificación</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Roles Asignados</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Estado de Acceso</th>
-                        {% if perms.accounts.change_user or perms.accounts.view_user %}
-                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody" class="divide-y divide-gray-50">
-                    {% for user in users %}
-                    <tr class="group hover:bg-orange-50/20 transition-all duration-300">
-                        <td class="px-8 py-6">
-                            <div class="flex items-center gap-4">
-                                <div class="h-12 w-12 rounded-xl bg-orange-600 text-white flex items-center justify-center font-black text-sm uppercase italic shadow-lg shadow-orange-100 flex-shrink-0">
-                                    {{ user.email|slice:":1"|upper }}
-                                </div>
-                                <div class="flex flex-col min-w-0">
-                                    <span class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors uppercase italic truncate">{{ user.email }}</span>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Documento: {{ user.document_number|default:"No registrado" }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-8 py-6">
-                            <div class="flex flex-wrap gap-2">
-                                {% for group in user.groups.all %}
-                                <span class="px-3 py-1 rounded-lg text-[10px] font-black bg-gray-50 text-gray-600 border border-gray-100 uppercase tracking-widest whitespace-nowrap">
-                                    {{ group.name }}
-                                </span>
-                                {% empty %}
-                                <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">Invitado</span>
-                                {% endfor %}
-                            </div>
-                        </td>
-                        <td class="px-8 py-6">
-                            <div class="flex items-center gap-2">
-                                <span class="inline-flex h-2 w-2 rounded-full {% if user.is_active %}bg-green-500{% else %}bg-red-500{% endif %}"></span>
-                                <span class="text-[10px] font-black uppercase tracking-widest {% if user.is_active %}text-green-700{% else %}text-red-700{% endif %}">
-                                    {{ user.is_active|yesno:"Activo,Inactivo" }}
-                                </span>
-                                {% if user.is_staff %}
-                                <span class="ml-2 px-2 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 text-[9px] font-black uppercase tracking-widest">Staff</span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        {% if perms.accounts.change_user or perms.accounts.view_user %}
-                        <td class="px-8 py-6 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                {% if perms.accounts.change_user %}
-                                <a href="{% url 'roles:user_role_edit' user.pk %}" class="px-4 py-2 bg-white text-orange-600 border border-orange-100 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:bg-orange-600 hover:text-white shadow-sm" title="Editar Roles">
-                                    Roles
-                                </a>
-                                {% endif %}
-                                {% if perms.accounts.change_user %}
-                                <button
-                                    data-action="staff-toggle"
-                                    data-url="{% url 'accounts:user_staff_toggle' user.pk %}"
-                                    data-email="{{ user.email|escapejs }}"
-                                    data-is-staff="{{ user.is_staff|yesno:'true,false' }}"
-                                    class="px-4 py-2 bg-white {% if user.is_staff %}text-red-500 border-red-50{% else %}text-purple-600 border-purple-50{% endif %} border rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:shadow-md active:scale-95 shadow-sm"
-                                    title="{% if user.is_staff %}Remover de Staff{% else %}Promover a Staff{% endif %}">
-                                    {% if user.is_staff %}Staff Off{% else %}Staff On{% endif %}
-                                </button>
-                                {% endif %}
-                                {% if perms.accounts.view_user %}
-                                <a href="{% url 'accounts:user_detail' user.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </a>
-                                {% endif %}
-                            </div>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="{% if perms.accounts.change_user or perms.accounts.view_user %}4{% else %}3{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
-                            No se encontraron empleados registrados
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div id="table-container" class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        {% include 'staff/accounts/user_list_partial.html' %}
     </div>
 </div>
 
@@ -109,7 +22,7 @@
 <div id="staff-toggle-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
     <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-overlay></div>
 
-    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50 animate-modal-enter">
+    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50">
         <div class="flex flex-col items-center text-center">
             <div id="staff-toggle-icon" class="h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl">
                 <!-- Icon injected via JS -->
@@ -127,13 +40,62 @@
                         class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100 transition-colors">
                     Cancelar
                 </button>
-                <button id="staff-toggle-submit" type="submit">
+                <button id="staff-toggle-submit" type="submit" class="flex-1 px-6 py-4 text-xs font-black text-white uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-lg">
                     Confirmar
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('staff-toggle-modal');
+    const overlay = modal && modal.querySelector('[data-modal-overlay]');
+    const closeBtns = modal && modal.querySelectorAll('[data-modal-close]');
+    const form = document.getElementById('staff-toggle-form');
+    const title = document.getElementById('staff-toggle-title');
+    const emailSpan = document.getElementById('staff-toggle-email');
+    const submitBtn = document.getElementById('staff-toggle-submit');
+    const iconDiv = document.getElementById('staff-toggle-icon');
+
+    function closeModal() {
+        if (modal) modal.classList.add('hidden');
+    }
+
+    if (overlay) overlay.addEventListener('click', closeModal);
+    if (closeBtns) closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+
+    document.querySelectorAll('[data-action="staff-toggle"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const url = this.dataset.url;
+            const email = this.dataset.email;
+            const isStaff = this.dataset.isStaff === 'true';
+
+            if (form) form.action = url;
+            if (emailSpan) emailSpan.textContent = email;
+            
+            if (isStaff) {
+                if (title) title.textContent = 'Remover Staff';
+                if (submitBtn) submitBtn.className = 'flex-1 px-6 py-4 text-xs font-black text-white bg-red-600 rounded-2xl shadow-red-100 hover:bg-red-700 uppercase tracking-widest transition-all';
+                if (iconDiv) {
+                    iconDiv.className = 'h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl bg-red-50 text-red-600';
+                    iconDiv.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path></svg>';
+                }
+            } else {
+                if (title) title.textContent = 'Promover a Staff';
+                if (submitBtn) submitBtn.className = 'flex-1 px-6 py-4 text-xs font-black text-white bg-purple-600 rounded-2xl shadow-purple-100 hover:bg-purple-700 uppercase tracking-widest transition-all';
+                if (iconDiv) {
+                    iconDiv.className = 'h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl bg-purple-50 text-purple-600';
+                    iconDiv.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>';
+                }
+            }
+
+            if (modal) modal.classList.remove('hidden');
+        });
+    });
+});
+</script>
 {% endblock %}
 
 {% block extra_js %}

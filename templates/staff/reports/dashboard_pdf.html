@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Administrativo</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 1.5cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+                height: 1cm;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #1f2937;
+            font-size: 12px;
+        }
+        h1 {
+            color: #ea580c;
+            font-size: 24px;
+            text-transform: uppercase;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #ea580c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #9a3412;
+            font-size: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .summary-box {
+            background-color: #fff7ed;
+            border: 1px solid #ffedd5;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: top;
+        }
+        .right {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="footerContent" style="text-align: center; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 5px;">
+        Generado por Kokori Broaster - Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+
+    <table class="header-table">
+        <tr>
+            <td style="width: 50%; border: none;">
+                <h1>Kokori Broaster</h1>
+            </td>
+            <td style="width: 50%; text-align: right; border: none; font-size: 10px; color: #6b7280;">
+                <strong>Reporte Administrativo</strong><br>
+                Filtro: {% if start_date %}{{ start_date }}{% else %}Inicio{% endif %} - {% if end_date %}{{ end_date }}{% else %}Actualidad{% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% if 'summary' in sections %}
+    <div class="summary-box">
+        <h2 style="margin-top: 0;">Resumen Financiero</h2>
+        <table>
+            <tr>
+                <td class="center" style="border: none;">
+                    <div style="font-size: 18px; font-weight: bold; color: #ea580c;">${{ total_sales }}</div>
+                    <div style="font-size: 10px; color: #6b7280; text-transform: uppercase;">Ventas Totales</div>
+                </td>
+                <td class="center" style="border: none;">
+                    <div style="font-size: 18px; font-weight: bold; color: #ea580c;">{{ total_orders }}</div>
+                    <div style="font-size: 10px; color: #6b7280; text-transform: uppercase;">Pedidos</div>
+                </td>
+                <td class="center" style="border: none;">
+                    <div style="font-size: 18px; font-weight: bold; color: #ea580c;">{{ completed_orders }}</div>
+                    <div style="font-size: 10px; color: #6b7280; text-transform: uppercase;">Completados</div>
+                </td>
+                <td class="center" style="border: none;">
+                    <div style="font-size: 18px; font-weight: bold; color: #ea580c;">{{ cancelled_orders }}</div>
+                    <div style="font-size: 10px; color: #6b7280; text-transform: uppercase;">Cancelados</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if 'orders' in sections %}
+    <h2>Detalle de Pedidos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">ID</th>
+                <th style="width: 20%;">Fecha</th>
+                <th style="width: 25%;">Cliente</th>
+                <th style="width: 15%;">Estado</th>
+                <th style="width: 15%;" class="right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>{{ order.order_date|date:"d M Y, H:i" }}</td>
+                <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td class="right"><strong>${{ order.total }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="center">No hay pedidos registrados en este periodo.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if 'stock' in sections %}
+    <h2>Inventario Actual</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">Ref</th>
+                <th style="width: 45%;">Producto</th>
+                <th style="width: 20%;" class="right">Stock Disp.</th>
+                <th style="width: 20%;" class="center">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td class="right"><strong>{{ product.stock }}</strong></td>
+                <td class="center">
+                    {% if product.stock <= 5 %}
+                    <span style="color: red; font-weight: bold;">Crítico</span>
+                    {% elif product.stock <= 10 %}
+                    <span style="color: orange; font-weight: bold;">Bajo</span>
+                    {% else %}
+                    <span style="color: green;">Óptimo</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if 'ratings' in sections %}
+    <h2>Calificaciones Recientes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">Cliente</th>
+                <th style="width: 10%;" class="center">Pts.</th>
+                <th style="width: 50%;">Comentario</th>
+                <th style="width: 20%;" class="right">Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rating in ratings %}
+            <tr>
+                <td>{{ rating.user.get_full_name|default:rating.user.username }}</td>
+                <td class="center"><strong>{{ rating.score }}/5</strong></td>
+                <td style="font-style: italic; color: #4b5563;">"{{ rating.comment|default:"-" }}"</td>
+                <td class="right">{{ rating.rating_date|date:"d M Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="center">No hay calificaciones recientes.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+</body>
+</html>

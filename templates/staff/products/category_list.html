@@ -18,98 +18,9 @@
     <!-- Toolbar: Title + Search -->
     {% include 'includes/list_toolbar.html' with toolbar_title="Estructura de Menú" search_id="categorySearch" target_id="categoriesTableBody" empty_state_id="categoryEmptySearchState" search_placeholder="Buscar categoría..." %}
 
-    <!-- Groups Table -->
-    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
-        <!-- Empty Search State -->
-        {% include 'includes/empty_search_state.html' with empty_id="categoryEmptySearchState" search_id="categorySearch" message="No se encontraron categorías que coincidan" %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50/60 border-b border-gray-100">
-                    <tr>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">#</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Descripción de la categoría</th>
-                        <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Items</th>
-                        {% if perms.products.change_category or perms.products.delete_category %}
-                        <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody id="categoriesTableBody" class="divide-y divide-gray-50">
-                {% for category in categories %}
-                <tr class="group hover:bg-orange-50/20 transition-all duration-300">
-                    <td class="px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ forloop.counter }}</td>
-                    <td class="px-8 py-6">
-                        <div class="flex flex-col">
-                            <span class="text-base font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors uppercase italic">{{ category.name }}</span>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Identificador único</span>
-                        </div>
-                    </td>
-                    <td class="px-8 py-6">
-                        <p class="text-sm text-gray-600 font-medium leading-relaxed max-w-xs">{{ category.description|default:"Sin descripción registrada" }}</p>
-                    </td>
-                    <td class="px-8 py-6">
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-orange-600 text-[10px] font-black text-white shadow-xl shadow-orange-100">{{ category.products.count }}</span>
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Registrados</span>
-                        </div>
-                    </td>
-                    {% if perms.products.change_category or perms.products.delete_category %}
-                    <td class="px-8 py-6 text-right">
-                        <div class="flex items-center justify-end gap-2">
-                            <!-- Edit -->
-                            {% if perms.products.change_category %}
-                            <button
-                                data-action="category-edit"
-                                data-url="{% url 'products:category_update' category.pk %}"
-                                data-name="{{ category.name|escapejs }}"
-                                data-description="{{ category.description|escapejs }}"
-                                class="p-3 text-gray-400 hover:text-orange-600 transition-all rounded-xl hover:bg-orange-50 border border-transparent hover:border-orange-100"
-                                title="Editar categoría">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                            </button>
-                            {% endif %}
-                            <!-- Delete -->
-                            {% if perms.products.delete_category %}
-                            <button
-                                data-action="category-delete"
-                                data-url="{% url 'products:category_delete' category.pk %}"
-                                data-name="{{ category.name|escapejs }}"
-                                class="p-3 text-gray-400 hover:text-red-500 transition-all rounded-xl hover:bg-red-50 border border-transparent hover:border-red-100"
-                                title="Eliminar categoría">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                </svg>
-                            </button>
-                            {% endif %}
-                        </div>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="{% if perms.products.change_category or perms.products.delete_category %}5{% else %}4{% endif %}" class="px-6 py-16 text-center">
-                        <div class="flex flex-col items-center">
-                            <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-300 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none"
-                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                                </svg>
-                            </div>
-                            <p class="text-sm font-medium text-gray-500 mb-1">No hay categorías registradas</p>
-                            <p class="text-xs text-gray-400">Crea la primera categoría para empezar a organizar tus productos.</p>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Table Container -->
+    <div id="table-container" class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
+        {% include 'staff/products/category_list_partial.html' %}
     </div>
 </div>
 
@@ -198,7 +109,7 @@
                     <button type="submit"
                             class="flex-[2] flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm rounded-xl shadow-lg shadow-orange-500/25 transition-all duration-200 active:scale-[0.98]">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                             <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                         </svg>
@@ -259,5 +170,3 @@
     {% endif %}
 </script>
 {% endblock %}
-
-

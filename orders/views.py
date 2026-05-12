@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
+from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin, StaffPaginationMixin
 from products.models import Product
 from .models import Order, OrderDetail, Delivery, Rating
 from accounts.models import Address, Municipality
@@ -162,11 +162,12 @@ class CheckoutView(LoginRequiredMixin, View):
             return redirect('orders:checkout')
 
 
-class OrderListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class OrderListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Order
     template_name = 'staff/orders/order_list.html'
     context_object_name = 'orders'
     permission_required = 'orders.view_order'
+    paginate_by = 10
     header_title = "Gestión de Pedidos"
     header_subtitle = "Control Maestro de Ventas y Estado"
     count_label = "Total Pedidos"
@@ -187,11 +188,12 @@ class OrderDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHea
     def get_object(self):
         return selectors.get_order_by_id(self.kwargs.get('pk'))
 
-class DeliveryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class DeliveryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Delivery
     template_name = 'staff/orders/delivery_list.html'
     context_object_name = 'deliveries'
     permission_required = 'orders.view_delivery'
+    paginate_by = 10
     header_title = "Gestión de Entregas"
     header_subtitle = "Seguimiento y Logística de Envío"
     count_label = "Total Despachos"
@@ -206,11 +208,12 @@ class DeliveryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffLi
         context['header_config']['count_value'] = active_deliveries_count
         return context
 
-class RatingListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class RatingListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Rating
     template_name = 'staff/orders/rating_list.html'
     context_object_name = 'ratings'
     permission_required = 'orders.view_rating'
+    paginate_by = 10
     header_title = "Calificaciones"
     header_subtitle = "Feedback y Experiencia del Cliente"
     count_label = "Total Valoraciones"
@@ -331,17 +334,18 @@ class StaffRatingDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, Vi
 
 # --- Municipality Management ---
 
-class MunicipalityListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class MunicipalityListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Municipality
     template_name = 'staff/orders/municipality_list.html'
     context_object_name = 'municipalities'
     permission_required = 'accounts.view_municipality'
+    paginate_by = 10
+    ordering = ['name']
     header_title = "Municipios"
     header_subtitle = "Gestión de Territorios y Cobertura"
     count_label = "Total Municipios"
 
-    def get_queryset(self):
-        return Municipality.objects.all()
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
