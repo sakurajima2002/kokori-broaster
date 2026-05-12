@@ -41,7 +41,7 @@ class RolesViewsTest(TestCase):
         self.assertRedirects(response, reverse('accounts:user_list'))
 
     def test_unauthorized_access(self):
-        regular_user = User.objects.create_user(email="reg@example.com", password="password123", document_number="444")
+        _unused_regular_user = User.objects.create_user(email="reg@example.com", password="password123", document_number="444")
         self.client.login(username="reg@example.com", password="password123")
         
         response = self.client.get(reverse('roles:group_list'))
