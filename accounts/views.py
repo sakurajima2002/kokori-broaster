@@ -53,6 +53,12 @@ class HomeView(StaffHeaderMixin, View):
     header_subtitle = "Visión General y Métricas de Rendimiento"
 
     def get(self, request, *args, **kwargs):
+        from django.db.models import Avg
+        from orders.models import Rating
+        
+        total_ratings = Rating.objects.count()
+        avg_rating = Rating.objects.aggregate(Avg('score'))['score__avg'] or 5.0
+
         if request.user.is_authenticated and request.user.is_staff:
             # Metrics
             try:
@@ -67,13 +73,19 @@ class HomeView(StaffHeaderMixin, View):
             low_stock_count = low_stock_products.count()
             
             total_orders = Order.objects.count()
-            pending_orders_count = Order.objects.filter(status='pending').count()
+            pending_orders_count = Order.objects.exclude(status__in=['delivered', 'cancelled']).count()
             
-            total_sales = Order.objects.filter(
-                status__in=['paid', 'delivered']
+            total_sales = Order.objects.exclude(
+                status__in=['pending', 'cancelled']
             ).aggregate(Sum('total'))['total__sum'] or 0
             
-            recent_orders = Order.objects.all().order_by('-order_date')[:5]
+            recent_orders = Order.objects.all().prefetch_related('details').order_by('-order_date')[:5]
+            
+            rating_score = request.GET.get('rating_score')
+            if rating_score and rating_score.isdigit():
+                recent_ratings = Rating.objects.filter(score=int(rating_score)).order_by('-rating_date')[:5]
+            else:
+                recent_ratings = Rating.objects.all().order_by('-rating_date')[:5]
 
             context = self.get_context_data()
             context.update({
@@ -86,9 +98,16 @@ class HomeView(StaffHeaderMixin, View):
                 'total_sales': total_sales,
                 'recent_orders': recent_orders,
                 'stock_threshold': threshold,
+                'total_ratings': total_ratings,
+                'avg_rating': avg_rating,
+                'recent_ratings': recent_ratings,
+                'rating_score': rating_score,
             })
             return render(request, 'staff/dashboard.html', context)
-        return render(request, 'users/home.html')
+        return render(request, 'users/home.html', {
+            'total_ratings': total_ratings,
+            'avg_rating': avg_rating,
+        })
 
 class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
     model = User
@@ -148,7 +167,7 @@ class MyAccountView(LoginRequiredMixin, View):
         form = UserProfileForm(instance=request.user)
         addresses = request.user.addresses.all()
         recent_orders = Order.objects.filter(user=request.user).select_related(
-            'delivery', 'payment'
+            'delivery'
         ).prefetch_related('details__product').order_by('-order_date')[:3]
         return render(request, self.template_name, {
             'form': form,
@@ -184,7 +203,11 @@ class MyOrdersView(LoginRequiredMixin, View):
     template_name = 'users/accounts/my_orders.html'
 
     def get(self, request):
+        from orders.forms import RatingForm
         orders = Order.objects.filter(user=request.user).select_related(
-            'delivery', 'payment', 'address'
+            'delivery', 'address'
         ).prefetch_related('details__product').order_by('-order_date')
-        return render(request, self.template_name, {'orders': orders})
+        return render(request, self.template_name, {
+            'orders': orders,
+            'rating_form': RatingForm()
+        })

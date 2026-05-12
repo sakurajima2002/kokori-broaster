@@ -25,6 +25,17 @@ class UserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
+class Municipality(models.Model):
+    name = models.CharField(max_length=100, verbose_name="Name")
+    code = models.CharField(max_length=20, unique=True, verbose_name="Code")
+
+    class Meta:
+        verbose_name = "Municipality"
+        verbose_name_plural = "Municipalities"
+
+    def __str__(self):
+        return self.name
+
 class User(AbstractUser):
     email = models.EmailField(unique=True, verbose_name="Email Address")
     document_number = models.CharField(
@@ -50,7 +61,7 @@ class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
     street = models.CharField(max_length=255, verbose_name="Street")
     neighborhood = models.CharField(max_length=100, verbose_name="Neighborhood")
-    city = models.CharField(max_length=100, verbose_name="City")
+    municipality = models.ForeignKey(Municipality, on_delete=models.PROTECT, related_name='addresses', null=True)
     reference = models.TextField(blank=True, verbose_name="Reference")
 
     class Meta:
@@ -58,4 +69,4 @@ class Address(models.Model):
         verbose_name_plural = "Addresses"
 
     def __str__(self):
-        return f"{self.street}, {self.neighborhood}, {self.city}"
+        return f"{self.street}, {self.neighborhood}, {self.municipality.name if self.municipality else ''}"

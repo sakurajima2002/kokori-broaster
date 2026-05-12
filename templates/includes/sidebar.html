@@ -9,10 +9,10 @@
     <div class="p-6 border-b border-gray-50 flex items-center justify-between bg-gradient-to-br from-white to-gray-50/50 flex-shrink-0">
         <div class="flex items-center space-x-4 overflow-hidden">
             <div class="h-11 w-11 bg-orange-600 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-xl shadow-orange-100 rotate-3">
-                <span class="text-white font-black text-xl italic">K</span>
+                <span class="text-white font-black text-xl italic">{{ site_config.COMPANY_ICON_LETTER|default:"K" }}</span>
             </div>
             <div class="sidebar-label overflow-hidden transition-all duration-300">
-                <span class="text-xl font-black text-gray-900 tracking-tighter block leading-none whitespace-nowrap">Kokori</span>
+                <span class="text-xl font-black text-gray-900 tracking-tighter block leading-none whitespace-nowrap">{{ site_config.COMPANY_NAME|default:"Kokori" }}</span>
                 <span class="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] whitespace-nowrap">Staff Panel</span>
             </div>
         </div>
@@ -122,15 +122,6 @@
         </a>
         {% endif %}
 
-        {% if perms.orders.view_payment %}
-        <a href="{% url 'orders:payment_list' %}" title="Pagos"
-           class="sidebar-link flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-bold
-                  {% if '/orders/payments/' in request.path %}bg-orange-600 text-white shadow-xl shadow-orange-200{% else %}text-gray-500 hover:text-orange-600 hover:bg-orange-50/50{% endif %}
-                  transition-all duration-300 group">
-            <svg class="h-5 w-5 flex-shrink-0 opacity-80 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-            <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">Pagos</span>
-        </a>
-        {% endif %}
 
         {% if perms.orders.view_rating %}
         <a href="{% url 'orders:rating_list' %}" title="Calificaciones"
@@ -139,6 +130,33 @@
                   transition-all duration-300 group">
             <svg class="h-5 w-5 flex-shrink-0 opacity-80 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.518 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
             <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">Calificaciones</span>
+        </a>
+        {% endif %}
+
+        {% if perms.accounts.view_municipality %}
+        <div class="sidebar-section-label px-3 py-2 mt-6 mb-2 transition-all duration-300 overflow-hidden">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em] whitespace-nowrap">Configuración</span>
+        </div>
+        {% endif %}
+
+
+        {% if perms.accounts.view_municipality %}
+        <a href="{% url 'orders:municipality_list' %}" title="Municipios"
+           class="sidebar-link flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-bold
+                  {% if '/orders/municipalities/' in request.path %}bg-orange-600 text-white shadow-xl shadow-orange-200{% else %}text-gray-500 hover:text-orange-600 hover:bg-orange-50/50{% endif %}
+                  transition-all duration-300 group">
+            <svg class="h-5 w-5 flex-shrink-0 opacity-80 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">Municipios</span>
+        </a>
+        {% endif %}
+
+        {% if user.is_superuser or perms.base.view_siteparameter %}
+        <a href="{% url 'base:parameter_list' %}" title="Parámetros Globales"
+           class="sidebar-link flex items-center space-x-3 px-4 py-3.5 rounded-2xl text-sm font-bold
+                  {% if '/base/configuration/' in request.path %}bg-orange-600 text-white shadow-xl shadow-orange-200{% else %}text-gray-500 hover:text-orange-600 hover:bg-orange-50/50{% endif %}
+                  transition-all duration-300 group">
+            <svg class="h-5 w-5 flex-shrink-0 opacity-80 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">Parámetros Globales</span>
         </a>
         {% endif %}
     </div>
