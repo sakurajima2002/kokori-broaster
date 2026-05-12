@@ -2,14 +2,15 @@ from django.views.generic import ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
-from roles.mixins import StaffPermissionRequiredMixin, StaffListingMixin, StaffHeaderMixin
+from roles.mixins import StaffPermissionRequiredMixin, StaffListingMixin, StaffHeaderMixin, StaffPaginationMixin
 from .models import SiteParameter
 
-class SiteParameterListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class SiteParameterListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = SiteParameter
     template_name = 'staff/configuration/parameter_list.html'
     context_object_name = 'parameters'
     permission_required = 'base.view_siteparameter'
+    paginate_by = 10
     header_title = "Parámetros Globales"
     header_subtitle = "Configuración General del Sitio"
     count_label = "Total Parámetros"

@@ -5,22 +5,8 @@
 {% block content %}
 <div class="space-y-6">
     <h1 class="text-3xl font-bold">Mis Direcciones</h1>
-    <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul class="divide-y divide-gray-200">
-            {% for address in addresses %}
-            <li class="px-4 py-4 sm:px-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-900">{{ address.address_line1 }}</p>
-                        <p class="text-xs text-gray-500">{{ address.city }}, {{ address.state }}</p>
-                    </div>
-                    <a href="{% url 'accounts:address_detail' address.id %}" class="text-orange-600 hover:text-orange-900 text-sm font-medium">Ver detalles</a>
-                </div>
-            </li>
-            {% empty %}
-            <li class="px-4 py-4 sm:px-6 text-center text-gray-500">No tienes direcciones guardadas.</li>
-            {% endfor %}
-        </ul>
+    <div id="table-container" class="bg-white shadow overflow-hidden sm:rounded-md">
+        {% include 'users/accounts/address_list_partial.html' %}
     </div>
 </div>
 {% endblock %}
