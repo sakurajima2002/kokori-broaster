@@ -4,6 +4,33 @@
 {% block extra_js %}
 {{ block.super }}
 <script src="{% static 'js/search_filter.js' %}"></script>
+<script>
+    function showDeleteModal(actionUrl) {
+        const modal = document.getElementById('deleteModal');
+        const modalContent = document.getElementById('deleteModalContent');
+        const form = document.getElementById('deleteForm');
+        
+        form.action = actionUrl;
+        
+        modal.classList.remove('hidden');
+        // Trigger reflow
+        void modal.offsetWidth;
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        const modalContent = document.getElementById('deleteModalContent');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
 {% endblock %}
 
 {% block title %}Calificaciones | Kokori Staff{% endblock %}
@@ -42,6 +69,9 @@
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-orange-600 transition-colors uppercase italic">{{ rating.user.get_full_name|default:rating.user.username }}</span>
                                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Cliente Verificado</span>
+                                {% if rating.comment %}
+                                <p class="md:hidden text-xs text-gray-500 italic mt-2 line-clamp-2 leading-relaxed">"{{ rating.comment }}"</p>
+                                {% endif %}
                             </div>
                         </td>
                         <td class="hidden sm:table-cell px-8 py-6 text-sm font-black text-gray-400 tracking-tighter italic">#{{ rating.order.id }}</td>
@@ -63,20 +93,19 @@
                             {{ rating.rating_date|date:"d M, Y" }}
                         </td>
                         {% if perms.orders.view_order or perms.orders.delete_rating %}
-                        <td class="px-4 sm:px-8 py-4 sm:py-6 text-right space-x-2">
-                            {% if perms.orders.view_order %}
-                            <a href="{% url 'orders:order_detail' rating.order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-blue-600 transition-all border border-gray-100" title="Ver Pedido">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </a>
-                            {% endif %}
-                            {% if perms.orders.delete_rating %}
-                            <form method="post" action="{% url 'orders:staff_rating_delete' rating.id %}" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar esta calificación?');">
-                                {% csrf_token %}
-                                <button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 hover:text-white hover:bg-red-600 transition-all border border-red-100" title="Eliminar Calificación">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
+                            <div class="flex items-center justify-end gap-2">
+                                {% if perms.orders.view_order %}
+                                <a href="{% url 'orders:order_detail' rating.order.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-blue-600 transition-all border border-gray-100 flex-shrink-0" title="Ver Pedido">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </a>
+                                {% endif %}
+                                {% if perms.orders.delete_rating %}
+                                <button type="button" onclick="showDeleteModal('{% url 'orders:staff_rating_delete' rating.id %}')" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 hover:text-white hover:bg-red-600 transition-all border border-red-100 flex-shrink-0" title="Eliminar Calificación">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
-                            </form>
-                            {% endif %}
+                                {% endif %}
+                            </div>
                         </td>
                         {% endif %}
                     </tr>
@@ -89,6 +118,24 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-sm w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="deleteModalContent">
+            <div class="h-16 w-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 tracking-tight uppercase italic text-center mb-2">Eliminar Calificación</h3>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest text-center mb-8">Esta acción no se puede deshacer.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" type="button" class="flex-1 py-3 bg-gray-50 text-gray-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-colors">Cancelar</button>
+                <form id="deleteForm" method="post" action="" class="flex-1">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-3 bg-red-500 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-red-600 transition-colors">Eliminar</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

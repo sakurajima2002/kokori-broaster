@@ -9,6 +9,22 @@
     <!-- Standardized Header -->
     {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle %}
 
+    <!-- Dashboard Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <!-- Export Button -->
+        <button onclick="openExportModal()" class="flex items-center gap-2 bg-gray-950 text-white hover:bg-orange-600 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md hover:-translate-y-0.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Generar Reporte
+        </button>
+
+        <form id="date-filter-form" hx-get="?action=filter_dates" hx-target="#sales-card" hx-trigger="change" class="flex items-center gap-3 bg-white rounded-2xl px-4 py-2.5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Filtrar Ventas:</span>
+            <input type="date" id="start_date_input" name="start_date" class="bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-600 focus:ring-0 p-1.5 cursor-pointer">
+            <span class="text-gray-300 font-bold">-</span>
+            <input type="date" id="end_date_input" name="end_date" class="bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-600 focus:ring-0 p-1.5 cursor-pointer">
+        </form>
+    </div>
+
     <!-- Stats Grid (Premium KPI Cards) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-16">
         <!-- Products Total -->
@@ -40,17 +56,8 @@
         </div>
 
         <!-- Total Sales -->
-        <div class="group bg-white border border-gray-100 p-6 sm:p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between transition-all hover:shadow-xl hover:shadow-gray-100/50 hover:-translate-y-1">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] group-hover:text-orange-600 transition-colors">Ventas Totales</span>
-                <div class="h-10 w-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 border border-orange-100/50 group-hover:bg-orange-600 group-hover:text-white transition-all">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-            </div>
-            <div class="flex items-baseline gap-2">
-                <span class="text-3xl font-black text-gray-900 italic tracking-tighter leading-none">${{ total_sales|floatformat:0 }}</span>
-                <span class="text-[10px] font-bold text-gray-400 opacity-50 uppercase tracking-widest">Ingresos</span>
-            </div>
+        <div id="sales-card" class="group bg-white border border-gray-100 p-6 sm:p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between transition-all hover:shadow-xl hover:shadow-gray-100/50 hover:-translate-y-1">
+            {% include 'staff/partials/sales_card.html' %}
         </div>
 
         {% if perms.accounts.view_user %}
@@ -81,7 +88,6 @@
                 <span class="text-4xl font-black italic tracking-tighter leading-none">{{ low_stock_count }}</span>
                 <span class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Sin/Bajo Stock</span>
             </div>
-            </div>
         </div>
 
         <!-- Ratings Stats -->
@@ -111,12 +117,11 @@
                         Alerta Stock
                     </h2>
                     <!-- Threshold Filter -->
-                    <form method="get" class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
+                    <form hx-get="?action=filter_stock" hx-target="#stock-table-body" hx-trigger="change" class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
                         <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Menores a:</span>
                         <input type="number" name="stock_threshold" value="{{ stock_threshold }}" 
                                min="0" required
-                               class="w-10 bg-transparent border-none text-[10px] font-black text-orange-600 focus:ring-0 p-0 text-center"
-                               onchange="if(this.value === '') this.value = 0; this.form.submit()">
+                               class="w-10 bg-transparent border-none text-[10px] font-black text-orange-600 focus:ring-0 p-0 text-center">
                     </form>
                 </div>
                 <div class="flex items-center gap-3">
@@ -145,41 +150,8 @@
                                 {% endif %}
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            {% for product in low_stock_products %}
-                            <tr class="group hover:bg-red-50/20 transition-all duration-300">
-                                <td class="px-4 sm:px-8 py-4 sm:py-6">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-black text-gray-900 tracking-tight leading-none mb-1 group-hover:text-red-600 transition-colors uppercase italic">{{ product.name }}</span>
-                                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">REF: #{{ product.id }}</span>
-                                    </div>
-                                </td>
-                                <td class="hidden sm:table-cell px-8 py-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest italic">{{ product.category.name }}</td>
-                                <td class="px-4 sm:px-8 py-4 sm:py-6">
-                                    <span class="px-3 py-1 rounded-lg text-[10px] font-black {% if product.stock == 0 %}bg-red-100 text-red-700{% else %}bg-orange-100 text-orange-700{% endif %} uppercase tracking-widest">
-                                        {{ product.stock }} UNIDADES
-                                    </span>
-                                </td>
-                                {% if perms.products.change_product %}
-                                <td class="px-4 sm:px-8 py-4 sm:py-6 text-right">
-                                    <a href="{% url 'products:product_update' product.id %}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
-                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                                    </a>
-                                </td>
-                                {% endif %}
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="px-8 py-16 text-center">
-                                    <div class="flex flex-col items-center">
-                                        <div class="h-12 w-12 rounded-2xl bg-green-50 text-green-500 flex items-center justify-center mb-3">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                        </div>
-                                        <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest italic">Inventario en buen estado</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="stock-table-body" class="divide-y divide-gray-50">
+                            {% include 'staff/partials/stock_table.html' %}
                         </tbody>
                     </table>
                 </div>
@@ -241,8 +213,50 @@
         </div>
     </div>
 
-    <!-- Secondary Operational Grid -->
+    <!-- Dashboard Charts Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-20">
+        <!-- Sales Over Time Chart -->
+        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-sm hover:shadow-xl hover:shadow-gray-100/50 transition-all">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-black text-gray-900 tracking-tight uppercase italic flex items-center gap-3">
+                    <span class="h-5 w-1.5 bg-orange-500 rounded-full"></span>
+                    Ventas
+                </h2>
+                <div class="flex items-center gap-3">
+                    <select id="chartPeriodSelect" onchange="loadCharts(this.value)" class="bg-gray-50 border-none rounded-xl text-[10px] font-black text-orange-600 focus:ring-0 p-1.5 cursor-pointer uppercase">
+                        <option value="7d">Últimos 7 días</option>
+                        <option value="30d">Últimos 30 días</option>
+                        <option value="this_year">Este año</option>
+                    </select>
+                    <button onclick="toggleSection('salesChartSection', this)" class="group h-8 w-8 flex items-center justify-center rounded-xl bg-white border border-gray-100 hover:bg-orange-600 transition-all">
+                        <svg class="w-3 h-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="salesChartSection" class="relative h-64 w-full transition-all overflow-hidden">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Orders by Status Chart -->
+        <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 sm:p-8 shadow-sm hover:shadow-xl hover:shadow-gray-100/50 transition-all">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-black text-gray-900 tracking-tight uppercase italic flex items-center gap-3">
+                    <span class="h-5 w-1.5 bg-blue-500 rounded-full"></span>
+                    Distribución de Pedidos
+                </h2>
+                <button onclick="toggleSection('statusChartSection', this)" class="group h-8 w-8 flex items-center justify-center rounded-xl bg-white border border-gray-100 hover:bg-blue-600 transition-all">
+                    <svg class="w-3 h-3 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+            <div id="statusChartSection" class="relative h-64 w-full flex items-center justify-center transition-all overflow-hidden">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Operational Grid -->
+    <div class="max-w-4xl mx-auto mb-20">
         <!-- Calificaciones Recientes -->
         <div class="space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4">
@@ -252,9 +266,9 @@
                         Calificaciones Recientes
                     </h2>
                     <!-- Rating Filter -->
-                    <form method="get" class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
+                    <form hx-get="?action=filter_ratings" hx-target="#ratings-list" hx-trigger="change" class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
                         <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Estrellas:</span>
-                        <select name="rating_score" onchange="this.form.submit()" class="bg-transparent border-none text-[10px] font-black text-yellow-600 focus:ring-0 p-0 pr-4">
+                        <select name="rating_score" class="bg-transparent border-none text-[10px] font-black text-yellow-600 focus:ring-0 p-0 pr-4">
                             <option value="">Todas</option>
                             <option value="5" {% if rating_score == '5' %}selected{% endif %}>5 Estrellas</option>
                             <option value="4" {% if rating_score == '4' %}selected{% endif %}>4 Estrellas</option>
@@ -265,6 +279,9 @@
                     </form>
                 </div>
                 <div class="flex items-center gap-3">
+                    <button onclick="toggleSection('ratings-list', this)" class="group h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-100 hover:bg-yellow-500 transition-all">
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
                     {% if perms.orders.view_rating %}
                     <a href="{% url 'orders:rating_list' %}" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-yellow-600 transition-colors inline-flex items-center gap-2">
                         Ver Todas
@@ -274,39 +291,172 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm space-y-4 transition-all">
-                {% for rating in recent_ratings %}
-                <div class="group flex items-start justify-between p-4 rounded-3xl border border-gray-50 hover:border-yellow-100 hover:bg-yellow-50/10 transition-all">
-                    <div class="flex items-start gap-4">
-                        <div class="h-12 w-12 rounded-2xl bg-gray-50 text-yellow-500 flex items-center justify-center border border-gray-100 group-hover:bg-yellow-500 group-hover:text-white transition-all flex-shrink-0">
-                            <span class="text-sm font-black italic">{{ rating.score }}</span>
-                            <svg class="w-3 h-3 ml-0.5 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+            <div id="ratings-list" class="bg-white border border-gray-100 rounded-[2.5rem] p-6 shadow-sm space-y-4 transition-all">
+                {% include 'staff/partials/recent_ratings.html' %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-6 sm:p-8 max-w-md w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="exportModalContent">
+            <h3 class="text-xl font-black text-gray-900 tracking-tight uppercase italic mb-6 flex items-center gap-3">
+                <span class="h-5 w-1.5 bg-orange-600 rounded-full"></span>
+                Exportar Reporte
+            </h3>
+            
+            <form id="exportForm" method="GET" action="">
+                <!-- Fechas ocultas (se llenan por JS) -->
+                <input type="hidden" name="start_date" id="export_start_date">
+                <input type="hidden" name="end_date" id="export_end_date">
+
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Formato de Exportación</p>
+                        <div class="flex gap-4">
+                            <label class="flex-1 flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:border-orange-200 hover:bg-orange-50/30 transition-all">
+                                <input type="radio" name="format" value="excel" checked class="text-orange-600 focus:ring-orange-500">
+                                <span class="text-xs font-bold text-gray-700">Excel (.xlsx)</span>
+                            </label>
+                            <label class="flex-1 flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:border-orange-200 hover:bg-orange-50/30 transition-all">
+                                <input type="radio" name="format" value="pdf" class="text-orange-600 focus:ring-orange-500">
+                                <span class="text-xs font-bold text-gray-700">PDF Document</span>
+                            </label>
                         </div>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs font-black text-gray-900 uppercase italic leading-none">{{ rating.user.get_full_name|default:rating.user.username }}</span>
-                                <a href="{% url 'orders:order_detail' rating.order.id %}" class="text-[9px] font-bold text-blue-500 hover:text-blue-700 hover:underline uppercase tracking-widest">Pedido #{{ rating.order.id }}</a>
-                            </div>
-                            {% if rating.comment %}
-                            <p class="text-xs text-gray-500 italic mb-1">"{{ rating.comment|truncatechars:60 }}"</p>
-                            {% endif %}
-                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ rating.rating_date|date:"d M Y" }}</span>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Información a Incluir</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-all">
+                                <input type="checkbox" name="sections" value="summary" checked class="text-orange-600 rounded focus:ring-orange-500">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-gray-900">Resumen Financiero</span>
+                                    <span class="text-[9px] text-gray-500">Ventas totales y conteo de pedidos</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-all">
+                                <input type="checkbox" name="sections" value="orders" checked class="text-orange-600 rounded focus:ring-orange-500">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-gray-900">Detalle de Pedidos</span>
+                                    <span class="text-[9px] text-gray-500">Lista completa con clientes y productos</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-all">
+                                <input type="checkbox" name="sections" value="stock" checked class="text-orange-600 rounded focus:ring-orange-500">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-gray-900">Inventario y Stock</span>
+                                    <span class="text-[9px] text-gray-500">Niveles de stock actuales por producto</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-all">
+                                <input type="checkbox" name="sections" value="ratings" checked class="text-orange-600 rounded focus:ring-orange-500">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-gray-900">Calificaciones Recientes</span>
+                                    <span class="text-[9px] text-gray-500">Feedback y comentarios de usuarios</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="py-12 text-center opacity-30">
-                    <p class="text-[10px] font-black uppercase tracking-widest">No se encontraron calificaciones</p>
+
+                <div class="flex gap-3 mt-8">
+                    <button type="button" onclick="closeExportModal()" class="flex-1 py-3 bg-gray-50 text-gray-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 transition-colors">Cancelar</button>
+                    <button type="button" onclick="submitExport()" class="flex-1 py-3 bg-gray-950 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-orange-600 transition-colors">Descargar</button>
                 </div>
-                {% endfor %}
-            </div>
+            </form>
         </div>
     </div>
 </div>
 
 {% block extra_js %}
 {{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    let salesChartInstance = null;
+    let statusChartInstance = null;
+
+    function loadCharts(period = '7d') {
+        fetch(`{% url 'accounts:dashboard_chart_data' %}?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                const statusCtx = document.getElementById('statusChart').getContext('2d');
+
+                // Update or create Sales Chart
+                if (salesChartInstance) {
+                    salesChartInstance.data.labels = data.sales.labels;
+                    salesChartInstance.data.datasets[0].data = data.sales.data;
+                    salesChartInstance.update();
+                } else {
+                    salesChartInstance = new Chart(salesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: data.sales.labels,
+                            datasets: [{
+                                label: 'Ventas Totales ($)',
+                                data: data.sales.data,
+                                borderColor: '#ea580c',
+                                backgroundColor: 'rgba(234, 88, 12, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#fff',
+                                pointBorderColor: '#ea580c',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, grid: { borderDash: [4, 4] } },
+                                x: { grid: { display: false } }
+                            }
+                        }
+                    });
+                }
+
+                // Update or create Status Chart
+                if (statusChartInstance) {
+                    statusChartInstance.data.labels = data.orders_by_status.labels;
+                    statusChartInstance.data.datasets[0].data = data.orders_by_status.data;
+                    statusChartInstance.update();
+                } else {
+                    statusChartInstance = new Chart(statusCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.orders_by_status.labels,
+                            datasets: [{
+                                data: data.orders_by_status.data,
+                                backgroundColor: [
+                                    '#ea580c', '#3b82f6', '#22c55e', '#eab308', 
+                                    '#8b5cf6', '#f43f5e', '#64748b'
+                                ],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8 } }
+                            },
+                            cutout: '70%'
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadCharts();
+    });
     function toggleSection(id, btn) {
         const section = document.getElementById(id);
         const icon = btn.querySelector('svg');
@@ -318,6 +468,43 @@
             section.classList.add('hidden');
             icon.style.transform = 'rotate(-90deg)';
         }
+    }
+
+    function openExportModal() {
+        const modal = document.getElementById('exportModal');
+        const content = document.getElementById('exportModalContent');
+        
+        // Sync dates
+        document.getElementById('export_start_date').value = document.getElementById('start_date_input').value;
+        document.getElementById('export_end_date').value = document.getElementById('end_date_input').value;
+        
+        modal.classList.remove('hidden');
+        void modal.offsetWidth;
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }
+
+    function closeExportModal() {
+        const modal = document.getElementById('exportModal');
+        const content = document.getElementById('exportModalContent');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => { modal.classList.add('hidden'); }, 300);
+    }
+
+    function submitExport() {
+        const form = document.getElementById('exportForm');
+        const format = document.querySelector('input[name="format"]:checked').value;
+        
+        if (format === 'excel') {
+            form.action = "{% url 'accounts:export_excel' %}";
+        } else {
+            form.action = "{% url 'accounts:export_pdf' %}";
+        }
+        
+        form.submit();
+        closeExportModal();
     }
 </script>
 {% endblock %}

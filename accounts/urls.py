@@ -15,4 +15,8 @@ urlpatterns = [
     path('my-account/', views.MyAccountView.as_view(), name='my_account'),
     path('my-account/address/<int:pk>/delete/', views.DeleteAddressView.as_view(), name='delete_address'),
     path('my-orders/', views.MyOrdersView.as_view(), name='my_orders'),
+    path('dashboard/', views.HomeView.as_view(), name='dashboard'),
+    path('dashboard-chart-data/', views.DashboardChartDataView.as_view(), name='dashboard_chart_data'),
+    path('export/excel/', views.ExportDashboardExcelView.as_view(), name='export_excel'),
+    path('export/pdf/', views.ExportDashboardPDFView.as_view(), name='export_pdf'),
 ]
