@@ -6,13 +6,15 @@ from django.contrib import messages
 
 from accounts.models import User
 from .forms import GroupForm, UserRoleForm
-from .mixins import StaffListingMixin, StaffHeaderMixin, StaffPermissionRequiredMixin
+from .mixins import StaffListingMixin, StaffHeaderMixin, StaffPermissionRequiredMixin, StaffPaginationMixin
 
-class GroupListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class GroupListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Group
     template_name = 'staff/roles/group_list.html'
     context_object_name = 'groups'
     permission_required = 'auth.view_group'
+    paginate_by = 10
+    ordering = ['name']
     header_title = "Roles y Permisos"
     header_subtitle = "Configuración de Niveles de Acceso"
     header_cta_label = "Nuevo Rol"

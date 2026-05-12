@@ -1,0 +1,51 @@
+<!-- Empty Search State -->
+{% include 'includes/empty_search_state.html' with empty_id="paramEmptySearchState" search_id="paramSearch" message="No se encontraron parámetros que coincidan" %}
+
+<div class="overflow-x-auto">
+    <table class="w-full">
+        <thead class="bg-gray-50/60 border-b border-gray-100">
+            <tr>
+                <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Nombre / Clave</th>
+                <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Valor / Imagen</th>
+                <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Descripción</th>
+                <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="paramTableBody" class="divide-y divide-gray-50">
+            {% for param in parameters %}
+            <tr class="group hover:bg-orange-50/20 transition-all duration-300">
+                <td class="px-8 py-6">
+                    <div class="flex flex-col">
+                        <span class="text-base font-black text-gray-900 tracking-tight leading-none uppercase italic">{{ param.label }}</span>
+                        <span class="text-[10px] font-bold text-gray-400 mt-1">{{ param.key }}</span>
+                    </div>
+                </td>
+                <td class="px-8 py-6">
+                    {% if param.image %}
+                        <div class="h-12 w-12 rounded-xl border border-gray-100 overflow-hidden bg-gray-50">
+                            <img src="{{ param.image.url }}" alt="{{ param.label }}" class="h-full w-full object-cover">
+                        </div>
+                    {% else %}
+                        <span class="text-sm font-black text-gray-600 tracking-tighter truncate max-w-[200px] block">{{ param.value|default:"---" }}</span>
+                    {% endif %}
+                </td>
+                <td class="px-8 py-6">
+                    <span class="text-xs font-bold text-gray-400 leading-relaxed block max-w-xs">{{ param.description }}</span>
+                </td>
+                <td class="px-8 py-6 text-right">
+                    <a href="{% url 'base:parameter_edit' param.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-orange-600 transition-all border border-gray-100">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
+                    No se encontraron parámetros registrados
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'includes/pagination.html' %}

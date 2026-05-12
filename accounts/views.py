@@ -138,11 +138,15 @@ class HomeView(StaffHeaderMixin, View):
             'avg_rating': avg_rating,
         })
 
-class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin, StaffPaginationMixin
+
+class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = User
     template_name = 'staff/accounts/user_list.html'
     context_object_name = 'users'
     permission_required = 'accounts.view_user'
+    paginate_by = 10
+    ordering = ['-id']
     header_title = "Gestión de Usuarios"
     header_subtitle = "Control de Acceso y Perfiles de Staff"
     count_label = "Usuarios Registrados"
@@ -251,11 +255,12 @@ class UserStaffStatusToggleView(LoginRequiredMixin, StaffPermissionRequiredMixin
         messages.success(request, f'El usuario {user.email} {status_text}.')
         return redirect('accounts:user_list')
 
-class AddressListView(LoginRequiredMixin, StaffPermissionRequiredMixin, ListView):
+class AddressListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffPaginationMixin, ListView):
     model = Address
     template_name = 'users/accounts/address_list.html'
     context_object_name = 'addresses'
     permission_required = 'accounts.view_address'
+    paginate_by = 10
 
 class AddressDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, DetailView):
     model = Address
@@ -285,16 +290,18 @@ class MyAccountView(LoginRequiredMixin, View):
         addresses = request.user.addresses.all()
         recent_orders = Order.objects.filter(user=request.user).order_by('-order_date')[:3]
         
+        # Initialize forms with default values
+        form = UserProfileForm(instance=request.user)
+        password_form = CustomPasswordChangeForm(user=request.user)
+
         if 'update_profile' in request.POST:
             form = UserProfileForm(request.POST, instance=request.user)
-            password_form = CustomPasswordChangeForm(user=request.user)
             if form.is_valid():
                 form.save()
                 messages.success(request, '¡Datos actualizados correctamente!')
                 return redirect('accounts:my_account')
         
         elif 'change_password' in request.POST:
-            form = UserProfileForm(instance=request.user)
             password_form = CustomPasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
@@ -322,18 +329,21 @@ class DeleteAddressView(LoginRequiredMixin, View):
         return redirect('accounts:my_account')
 
 
-class MyOrdersView(LoginRequiredMixin, View):
+class MyOrdersView(LoginRequiredMixin, StaffPaginationMixin, ListView):
     template_name = 'users/accounts/my_orders.html'
+    context_object_name = 'orders'
+    paginate_by = 5
 
-    def get(self, request):
-        from orders.forms import RatingForm
-        orders = Order.objects.filter(user=request.user).select_related(
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).select_related(
             'delivery', 'address'
         ).prefetch_related('details__product').order_by('-order_date')
-        return render(request, self.template_name, {
-            'orders': orders,
-            'rating_form': RatingForm()
-        })
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from orders.forms import RatingForm
+        context['rating_form'] = RatingForm()
+        return context
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
@@ -395,7 +405,7 @@ class DashboardChartDataView(LoginRequiredMixin, StaffPermissionRequiredMixin, V
 
 from django.http import HttpResponse
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.styles import Font, PatternFill
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 from xhtml2pdf import pisa

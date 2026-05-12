@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.views import View
 
-from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin
+from roles.mixins import StaffPermissionRequiredMixin, StaffHeaderMixin, StaffListingMixin, StaffPaginationMixin
 from .models import Category, Product
 from .forms import ProductForm, CategoryForm, ComboDetailFormSet
 from . import selectors
@@ -29,21 +29,25 @@ class ProductCatalogView(View):
 
 
 
-class CategoryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, View):
+class CategoryListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
+    model = Category
     template_name = 'staff/products/category_list.html'
+    context_object_name = 'categories'
     permission_required = 'products.view_category'
+    paginate_by = 10
     header_title = "Gestión de Categorías"
     header_subtitle = "Organización Maestra del Menú"
     header_cta_label = "Añadir Categoría"
     header_cta_url = reverse_lazy('products:category_create')
     count_label = "Total Categorías"
 
-    def get(self, request, *args, **kwargs):
-        categories = selectors.get_all_categories()
-        form = CategoryForm()
-        context = self.get_context_data(object_list=categories)
-        context.update({'categories': categories, 'form': form})
-        return render(request, self.template_name, context)
+    def get_queryset(self):
+        return selectors.get_all_categories()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CategoryForm()
+        return context
 
 class CategoryCreateView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'products.add_category'
@@ -84,11 +88,12 @@ class CategoryDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, View)
 
 
 
-class ProductListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, ListView):
+class ProductListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
     model = Product
     template_name = 'staff/products/product_list.html'
     context_object_name = 'products'
     permission_required = 'products.view_product'
+    paginate_by = 10
     header_title = "Gestión de Inventario"
     header_subtitle = "Control Maestro de Productos y Combos"
     header_cta_label = "Nuevo Producto"
