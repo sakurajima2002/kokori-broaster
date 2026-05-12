@@ -41,6 +41,12 @@ DEFAULT_PARAMETERS = [
         'value': 'Calle Principal #123',
         'description': 'Dirección del local principal.'
     },
+    {
+        'key': 'DATA_TREATMENT_POLICY_INFO',
+        'label': 'Política de Tratamiento de Datos',
+        'value': 'Recopilamos datos personales como correo y documento para procesar tu registro y pedidos. Estos datos se usan exclusivamente para contacto y entrega, y no se comparten con terceros sin tu consentimiento.',
+        'description': 'Texto que describe el tratamiento de datos personales en el formulario de registro.'
+    },
     
     # Redes Sociales (Existentes)
     {
