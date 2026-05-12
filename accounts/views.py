@@ -1,5 +1,5 @@
 from roles.mixins import StaffListingMixin, StaffHeaderMixin, StaffPermissionRequiredMixin
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from django.views import View
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 
 from .models import User, Address
-from .forms import LoginUserForm, RegisterUserForm, UserProfileForm
+from .forms import LoginUserForm, RegisterUserForm, UserProfileForm, StaffUserUpdateForm, CustomPasswordChangeForm
 from products.models import Product
 from orders.models import Order
 from django.db.models import Sum
@@ -153,12 +153,87 @@ class UserListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListin
 class UserDetailView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, DetailView):
     model = User
     template_name = 'staff/accounts/user_detail.html'
-    context_object_name = 'user'
+    context_object_name = 'user_obj' # Use user_obj to avoid conflict with request.user
     permission_required = 'accounts.view_user'
     header_title = "Perfil de Usuario"
     header_subtitle = "Detalles de Cuenta y Actividad"
     header_show_back = True
     header_back_url = reverse_lazy('accounts:user_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add order statistics
+        orders = Order.objects.filter(user=self.object)
+        context['total_orders'] = orders.count()
+        context['total_spent'] = orders.exclude(status='cancelled').aggregate(Sum('total'))['total__sum'] or 0
+        context['recent_orders'] = orders.order_by('-order_date')[:10]
+        return context
+
+class UserUpdateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, UpdateView):
+    model = User
+    form_class = StaffUserUpdateForm
+    template_name = 'staff/accounts/user_form.html'
+    context_object_name = 'user_obj'
+    permission_required = 'accounts.change_user'
+    header_title = "Editar Usuario"
+    header_subtitle = "Actualizar Información de Cuenta"
+    header_show_back = True
+
+    def dispatch(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user != request.user and not request.user.is_superuser:
+            messages.error(request, "No tienes permiso para editar otros perfiles.")
+            return redirect('accounts:user_detail', pk=user.pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object == self.request.user:
+            context['password_form'] = CustomPasswordChangeForm(self.request.user)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object != request.user and not request.user.is_superuser:
+            messages.error(request, "No tienes permiso para editar otros perfiles.")
+            return redirect('accounts:user_detail', pk=self.object.pk)
+
+        if 'change_password' in request.POST:
+            password_form = CustomPasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, user)
+                messages.success(request, "Contraseña actualizada correctamente.")
+                return redirect('accounts:user_detail', pk=user.pk)
+            else:
+                form = self.get_form()
+                return self.render_to_response(self.get_context_data(form=form, password_form=password_form))
+        
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('accounts:user_detail', kwargs={'pk': self.object.pk})
+    
+    def get_header_back_url(self):
+        return reverse_lazy('accounts:user_detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, f"Usuario {self.object.email} actualizado.")
+        return super().form_valid(form)
+
+class UserDeleteView(LoginRequiredMixin, StaffPermissionRequiredMixin, DeleteView):
+    model = User
+    success_url = reverse_lazy('accounts:user_list')
+    permission_required = 'accounts.delete_user'
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user == request.user:
+            messages.error(request, "No puedes eliminar tu propia cuenta desde aquí.")
+            return redirect('accounts:user_list')
+        messages.success(request, f"Usuario {user.email} eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)
 
 class UserStaffStatusToggleView(LoginRequiredMixin, StaffPermissionRequiredMixin, View):
     permission_required = 'accounts.change_user'
@@ -194,26 +269,45 @@ class MyAccountView(LoginRequiredMixin, View):
 
     def get(self, request):
         form = UserProfileForm(instance=request.user)
+        password_form = CustomPasswordChangeForm(user=request.user)
         addresses = request.user.addresses.all()
         recent_orders = Order.objects.filter(user=request.user).select_related(
             'delivery'
         ).prefetch_related('details__product').order_by('-order_date')[:3]
         return render(request, self.template_name, {
             'form': form,
+            'password_form': password_form,
             'addresses': addresses,
             'recent_orders': recent_orders,
         })
 
     def post(self, request):
-        form = UserProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, '¡Datos actualizados correctamente!')
-            return redirect('accounts:my_account')
         addresses = request.user.addresses.all()
         recent_orders = Order.objects.filter(user=request.user).order_by('-order_date')[:3]
+        
+        if 'update_profile' in request.POST:
+            form = UserProfileForm(request.POST, instance=request.user)
+            password_form = CustomPasswordChangeForm(user=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, '¡Datos actualizados correctamente!')
+                return redirect('accounts:my_account')
+        
+        elif 'change_password' in request.POST:
+            form = UserProfileForm(instance=request.user)
+            password_form = CustomPasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, user) # Important to keep session
+                messages.success(request, '¡Contraseña actualizada correctamente!')
+                return redirect('accounts:my_account')
+            else:
+                messages.error(request, 'Error al actualizar la contraseña. Por favor verifica los datos.')
+
         return render(request, self.template_name, {
             'form': form,
+            'password_form': password_form,
             'addresses': addresses,
             'recent_orders': recent_orders,
         })

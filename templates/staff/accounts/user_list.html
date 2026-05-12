@@ -68,11 +68,6 @@
                         <td class="px-8 py-6 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 {% if perms.accounts.change_user %}
-                                <a href="{% url 'roles:user_role_edit' user.pk %}" class="px-4 py-2 bg-white text-orange-600 border border-orange-100 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:bg-orange-600 hover:text-white shadow-sm" title="Editar Roles">
-                                    Roles
-                                </a>
-                                {% endif %}
-                                {% if perms.accounts.change_user %}
                                 <button
                                     data-action="staff-toggle"
                                     data-url="{% url 'accounts:user_staff_toggle' user.pk %}"
@@ -83,15 +78,48 @@
                                     {% if user.is_staff %}Staff Off{% else %}Staff On{% endif %}
                                 </button>
                                 {% endif %}
+                                {% if user == request.user %}
+                                <a href="{% url 'accounts:user_update' user.pk %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-orange-600 hover:text-white hover:bg-orange-600 transition-all border border-orange-100" title="Editar mi Perfil">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                                {% endif %}
                                 {% if perms.accounts.view_user %}
-                                <a href="{% url 'accounts:user_detail' user.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100">
+                                <a href="{% url 'accounts:user_detail' user.id %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:text-white hover:bg-gray-950 transition-all border border-gray-100" title="Ver Detalles">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </a>
+                                {% endif %}
+                                {% if perms.accounts.delete_user %}
+                                <button type="button" 
+                                    onclick="document.getElementById('delete-user-modal-{{ user.pk }}').classList.remove('hidden')"
+                                    class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 hover:text-white hover:bg-red-600 transition-all border border-red-100" 
+                                    title="Eliminar Usuario">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                                 {% endif %}
                             </div>
                         </td>
                         {% endif %}
                     </tr>
+                    {% if perms.accounts.delete_user %}
+                    <!-- Delete Modal for this user -->
+                    <div id="delete-user-modal-{{ user.pk }}" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+                        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onclick="document.getElementById('delete-user-modal-{{ user.pk }}').classList.add('hidden')"></div>
+                        <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-2xl border border-gray-50 text-left">
+                            <div class="flex flex-col items-center text-center">
+                                <div class="h-20 w-20 bg-red-50 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl text-red-600">
+                                    <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </div>
+                                <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase italic leading-none mb-3">¿Eliminar Usuario?</h2>
+                                <p class="text-sm text-gray-400 font-medium mb-8">{{ user.email }}</p>
+                                <form action="{% url 'accounts:user_delete' user.pk %}" method="POST" class="w-full flex items-center gap-3">
+                                    {% csrf_token %}
+                                    <button type="button" onclick="document.getElementById('delete-user-modal-{{ user.pk }}').classList.add('hidden')" class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100">Cancelar</button>
+                                    <button type="submit" class="flex-1 px-6 py-4 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-red-100 hover:bg-red-700 active:scale-95 transition-all">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     {% empty %}
                     <tr>
                         <td colspan="{% if perms.accounts.change_user or perms.accounts.view_user %}4{% else %}3{% endif %}" class="px-8 py-16 text-center text-gray-500 font-bold italic uppercase tracking-widest opacity-30">
@@ -109,7 +137,7 @@
 <div id="staff-toggle-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
     <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-overlay></div>
 
-    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50 animate-modal-enter">
+    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50">
         <div class="flex flex-col items-center text-center">
             <div id="staff-toggle-icon" class="h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl">
                 <!-- Icon injected via JS -->
@@ -127,13 +155,62 @@
                         class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100 transition-colors">
                     Cancelar
                 </button>
-                <button id="staff-toggle-submit" type="submit">
+                <button id="staff-toggle-submit" type="submit" class="flex-1 px-6 py-4 text-xs font-black text-white uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-lg">
                     Confirmar
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('staff-toggle-modal');
+    const overlay = modal && modal.querySelector('[data-modal-overlay]');
+    const closeBtns = modal && modal.querySelectorAll('[data-modal-close]');
+    const form = document.getElementById('staff-toggle-form');
+    const title = document.getElementById('staff-toggle-title');
+    const emailSpan = document.getElementById('staff-toggle-email');
+    const submitBtn = document.getElementById('staff-toggle-submit');
+    const iconDiv = document.getElementById('staff-toggle-icon');
+
+    function closeModal() {
+        if (modal) modal.classList.add('hidden');
+    }
+
+    if (overlay) overlay.addEventListener('click', closeModal);
+    if (closeBtns) closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+
+    document.querySelectorAll('[data-action="staff-toggle"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const url = this.dataset.url;
+            const email = this.dataset.email;
+            const isStaff = this.dataset.isStaff === 'true';
+
+            if (form) form.action = url;
+            if (emailSpan) emailSpan.textContent = email;
+            
+            if (isStaff) {
+                if (title) title.textContent = 'Remover Staff';
+                if (submitBtn) submitBtn.className = 'flex-1 px-6 py-4 text-xs font-black text-white bg-red-600 rounded-2xl shadow-red-100 hover:bg-red-700 uppercase tracking-widest transition-all';
+                if (iconDiv) {
+                    iconDiv.className = 'h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl bg-red-50 text-red-600';
+                    iconDiv.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"></path></svg>';
+                }
+            } else {
+                if (title) title.textContent = 'Promover a Staff';
+                if (submitBtn) submitBtn.className = 'flex-1 px-6 py-4 text-xs font-black text-white bg-purple-600 rounded-2xl shadow-purple-100 hover:bg-purple-700 uppercase tracking-widest transition-all';
+                if (iconDiv) {
+                    iconDiv.className = 'h-20 w-20 rounded-[2rem] flex items-center justify-center mb-6 border-4 border-white shadow-xl bg-purple-50 text-purple-600';
+                    iconDiv.innerHTML = '<svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>';
+                }
+            }
+
+            if (modal) modal.classList.remove('hidden');
+        });
+    });
+});
+</script>
 {% endblock %}
 
 {% block extra_js %}
