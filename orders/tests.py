@@ -32,7 +32,7 @@ class OrdersModelTest(TestCase):
         )
 
     def test_order_creation(self):
-        self.assertEqual(self.order.status, 'pending')
+        self.assertEqual(self.order.status, 'awaiting_confirmation')
         self.assertEqual(str(self.order), f"Order {self.order.id} - buyer@example.com")
 
     def test_order_detail_creation(self):
@@ -120,11 +120,19 @@ class ServicesTest(TestCase):
     def test_process_checkout_and_update(self):
         order = services.process_checkout(self.user, self.cart, self.address)
         self.assertEqual(order.user, self.user)
-        self.assertEqual(order.status, 'pending')
+        self.assertEqual(order.status, 'awaiting_confirmation')
         self.assertEqual(Order.objects.count(), 1)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 1) # Stock not reduced yet
+        
+        # Move to confirmed to trigger stock reduction
+        services.update_order_status(order, "confirmed")
+        self.assertEqual(order.status, "confirmed")
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock, 0)
         
+        services.update_order_status(order, "paid")
+        services.update_order_status(order, "preparing")
         services.update_order_status(order, "shipped")
         self.assertEqual(order.status, "shipped")
         
@@ -176,7 +184,8 @@ class OrdersViewsTest(TestCase):
         response = self.client.post(reverse('orders:checkout'), {
             'address_id': self.address.id
         })
-        self.assertIn('https://wa.me/', response.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'https://api.whatsapp.com/send')
         self.assertEqual(Order.objects.count(), 2)
 
     def test_checkout_view_post_invalid(self):
@@ -213,7 +222,7 @@ class OrdersViewsTest(TestCase):
 
     def test_rating_create_not_delivered(self):
         self.client.login(username="buyer@example.com", password="password123")
-        self.order.status = 'pending'
+        self.order.status = 'awaiting_confirmation'
         self.order.save()
         response = self.client.post(reverse('orders:rating_create', args=[self.order.id]), {
             'score': 5,
@@ -223,6 +232,10 @@ class OrdersViewsTest(TestCase):
 
     def test_staff_views(self):
         self.client.login(username="staff@example.com", password="password123")
+        
+        # Prepare order for shipment
+        self.order.status = 'preparing'
+        self.order.save()
         
         # Delivery update
         response = self.client.post(reverse('orders:update_delivery_status', args=[self.order.id]), {'status': 'shipped'})
