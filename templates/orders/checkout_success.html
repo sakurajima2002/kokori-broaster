@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pedido Recibido | Kokori Broaster{% endblock %}
+
+{% block content %}
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-950/95 backdrop-blur-md">
+    <div class="max-w-xl w-full">
+        <div class="bg-white rounded-[3rem] p-10 sm:p-14 shadow-2xl relative overflow-hidden text-center">
+            <!-- Decorative Background -->
+            <div class="absolute -top-24 -right-24 h-64 w-64 bg-orange-50 rounded-full blur-3xl opacity-50"></div>
+            
+            <div class="relative z-10">
+                <!-- Success Icon -->
+                <div class="h-24 w-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner animate-bounce">
+                    <svg class="h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl font-black text-gray-900 mb-4 italic uppercase leading-tight">¡Pedido <span class="text-green-600">Registrado!</span></h1>
+                <p class="text-gray-500 font-bold mb-10 text-lg">Hemos generado tu pedido <span class="text-orange-600 font-black">#{{ order.id }}</span>. Para finalizar, haz clic en el botón de abajo para enviarlo por WhatsApp.</p>
+
+                <div class="space-y-5">
+                    <a href="{{ whatsapp_url }}" target="_blank" style="background-color: #16a34a !important; color: white !important;" class="flex items-center justify-center gap-4 w-full bg-green-600 hover:bg-green-500 text-white font-black py-6 rounded-[2rem] shadow-2xl shadow-green-900/20 transition-all hover:scale-[1.03] active:scale-95 group text-xl">
+                        <svg class="h-8 w-8 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.29-4.143c1.565.933 3.176 1.403 4.845 1.403 5.163 0 9.364-4.201 9.366-9.366.001-2.503-.974-4.856-2.748-6.63s-4.13-2.75-6.633-2.751c-5.166 0-9.367 4.202-9.37 9.367 0 1.741.483 3.435 1.397 4.914l-.991 3.626 3.712-.973zm11.367-6.363c-.301-.15-1.781-.879-2.056-.979-.275-.1-.475-.15-.675.15-.2.3-.775.979-.95 1.179-.175.2-.35.225-.651.075-.301-.15-1.27-.467-2.42-1.492-.894-.798-1.497-1.783-1.672-2.083-.175-.3-.018-.463.13-.612.134-.133.301-.351.451-.526.15-.175.2-.3.301-.5.101-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.583-.491-.503-.675-.513-.175-.01-.375-.01-.575-.01s-.525.075-.8.375c-.275.3-1.05 1.026-1.05 2.503s1.075 2.903 1.225 3.103c.15.2 2.115 3.23 5.125 4.531.716.31 1.274.495 1.709.635.72.227 1.375.196 1.893.118.577-.087 1.781-.727 2.031-1.427.25-.7.25-1.301.175-1.427-.075-.125-.275-.2-.575-.35z"/></svg>
+                        <span>ENVIAR A WHATSAPP</span>
+                    </a>
+                    
+                    <a href="{% url 'accounts:my_orders' %}" class="flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-500 font-black py-4 rounded-2xl transition-all uppercase tracking-widest text-[10px]">
+                        Ver mis pedidos registrados
+                    </a>
+                </div>
+
+                <p class="mt-8 text-[9px] font-bold text-gray-300 uppercase tracking-[0.2em]">Si algo falla, puedes volver a intentar el envío desde tu historial en <span class="text-orange-500">Mis Pedidos</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

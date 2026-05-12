@@ -7,9 +7,9 @@
 <div class="lg:hidden bg-white/90 backdrop-blur-md border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
     <div class="flex items-center space-x-3">
         <div class="h-9 w-9 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-100 rotate-3">
-            <span class="text-white font-black text-sm italic">K</span>
+            <span class="text-white font-black text-sm italic">{{ site_config.COMPANY_ICON_LETTER|default:"K" }}</span>
         </div>
-        <span class="text-lg font-black text-gray-900 tracking-tighter italic">Kokori <span class="text-orange-600">Staff</span></span>
+        <span class="text-lg font-black text-gray-900 tracking-tighter italic">{{ site_config.COMPANY_NAME|default:"Kokori" }} <span class="text-orange-600">Staff</span></span>
     </div>
     <button id="open-sidebar-btn" class="p-2 rounded-xl bg-gray-50 text-gray-500 hover:text-orange-600 hover:bg-orange-50 transition-all active:scale-95">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
@@ -17,7 +17,7 @@
 </div>
 
 <!-- Sidebar Overlay (mobile) -->
-<div id="sidebar-overlay" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
+<div id="sidebar-overlay" class="lg:hidden fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden transition-opacity duration-300"></div>
 
 <div id="staff-layout" class="flex min-h-screen bg-gray-50 transition-all duration-300">
     <!-- Sidebar -->
@@ -26,18 +26,24 @@
     <!-- Main Content -->
     <div id="main-content" class="flex-grow w-full min-w-0 transition-all duration-300">
         <main class="p-4 sm:p-6 lg:p-10 relative">
-            <!-- Toast Notifications -->
-            {% include 'includes/toasts.html' %}
-
-
             {% block content %}{% endblock %}
         </main>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_css %}{% endblock %}
+
 {% block extra_js %}
     <!-- Core Admin Scripts -->
     <script type="module" src="{% static 'js/admin_bundle_v2.js' %}"></script>
     <script type="module" src="{% static 'js/sidebar.js' %}"></script>
 {% endblock %}
+
+<style>
+    @keyframes modal-enter {
+        from { opacity: 0; transform: scale(0.93) translateY(16px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal-enter { animation: modal-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+</style>

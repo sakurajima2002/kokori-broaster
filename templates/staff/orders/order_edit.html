@@ -1,0 +1,65 @@
+{% extends "staff/staff_base.html" %}
+{% load static %}
+
+{% block title %}Editar Pedido #{{ object.id }} | Kokori Staff{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle show_back=header_config.show_back back_url=header_config.back_url %}
+
+    <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden p-8 sm:p-12">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            {{ formset.management_form }}
+
+            <div class="space-y-6">
+                <h3 class="text-lg font-black text-gray-900 uppercase italic tracking-widest border-b border-gray-100 pb-4">Productos del Pedido</h3>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    {% for form in formset %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-gray-50 rounded-3xl border border-gray-100 transition-all hover:border-orange-200">
+                        {{ form.id }}
+                        <div class="flex items-center gap-4">
+                            <div class="h-16 w-16 bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+                                {% if form.instance.product.image %}
+                                <img src="{{ form.instance.product.image.url }}" class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-orange-200 font-black text-xl italic">K</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-black text-gray-900 uppercase leading-none mb-1">{{ form.instance.product.name }}</h4>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Precio Unit: ${{ form.instance.unit_price }}</p>
+                                <p class="text-[10px] font-black {% if form.instance.product.stock == 0 %}text-red-500{% else %}text-emerald-500{% endif %} uppercase tracking-widest mt-1">Stock Actual: {{ form.instance.product.stock }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-6">
+                            <div class="w-32">
+                                <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-2">Cantidad</label>
+                                {{ form.quantity }}
+                                {% if form.quantity.errors %}
+                                <p class="text-[10px] text-red-500 font-bold mt-1">{{ form.quantity.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center gap-2 pt-5">
+                                {{ form.DELETE }}
+                                <label for="{{ form.DELETE.id_for_label }}" class="text-[10px] font-black text-red-400 uppercase tracking-widest cursor-pointer hover:text-red-600 transition-colors">Eliminar</label>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-4 pt-8 border-t border-gray-100">
+                <a href="{% url 'orders:order_detail' object.pk %}" class="px-8 py-4 text-sm font-black text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-all">Cancelar</a>
+                <button type="submit" class="px-10 py-4 bg-orange-600 text-white text-sm font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-orange-900/10 transition-all hover:bg-orange-500 hover:scale-[1.02] active:scale-95">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -21,6 +21,7 @@ urlpatterns = [
     path('roles/', include(('roles.urls', 'roles'))),
     path('products/', include(('products.urls', 'products'))),
     path('orders/', include(('orders.urls', 'orders'))),
+    path('base/', include(('base.urls', 'base'))),
     
 ]
 
