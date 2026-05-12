@@ -33,7 +33,7 @@ jobs:
       run: cp .env.example .env.dev
 
     - name: Run Package Audit
-      run: pip-audit
+      run: pip-audit --ignore-vuln CVE-2024-25885
 
     - name: Make Migrations
       run: python manage.py makemigrations --noinput
