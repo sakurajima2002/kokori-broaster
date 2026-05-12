@@ -61,6 +61,10 @@
                             title="{% if user.is_staff %}Remover de Staff{% else %}Promover a Staff{% endif %}">
                             {% if user.is_staff %}Staff Off{% else %}Staff On{% endif %}
                         </button>
+                        <a href="{% url 'roles:user_role_edit' user.pk %}" class="inline-flex h-10 items-center gap-2 px-4 py-2 rounded-xl bg-white text-gray-500 border border-gray-100 hover:bg-orange-50 hover:text-orange-600 transition-all shadow-sm" title="Editar Roles">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 10-7 7 7 7 0 007-7zm-4.5-3.5l-2.5 2.5-1.5-1.5"></path></svg>
+                            <span class="text-[10px] font-black uppercase tracking-widest">Rol</span>
+                        </a>
                         {% endif %}
                         {% if user == request.user %}
                         <a href="{% url 'accounts:user_update' user.pk %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-orange-600 hover:text-white hover:bg-orange-600 transition-all border border-orange-100" title="Editar mi Perfil">
