@@ -9,6 +9,14 @@ class LoginUserForm(AuthenticationForm):
         fields = ['username', 'password']
 
 class RegisterUserForm(UserCreationForm):
+    agree_data_treatment = forms.BooleanField(
+        label='He leído y acepto el tratamiento de datos',
+        required=True,
+        error_messages={
+            'required': 'Debes aceptar el tratamiento de datos para continuar.'
+        }
+    )
+
     class Meta:
         model = User
         fields = ['email', 'document_number']
