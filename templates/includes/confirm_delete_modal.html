@@ -1,0 +1,47 @@
+{% comment %}
+  Reusable confirm-delete modal partial.
+  
+  Usage:
+    {% include 'includes/confirm_delete_modal.html' with
+        modal_id="delete-role-modal"
+        form_id="delete-role-form"
+        name_span_id="delete-role-name"
+        title="¿Eliminar Rol?"
+        description="Esta acción es irreversible."
+        cancel_label="Cancelar"
+        confirm_label="Sí, Eliminar"
+    %}
+  
+  The JS caller must set the form action and name span text before opening.
+{% endcomment %}
+<div id="{{ modal_id }}" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" data-modal-overlay></div>
+
+    <div class="relative bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.2)] border border-gray-50 animate-modal-enter">
+        <div class="flex flex-col items-center text-center">
+            <div class="h-20 w-20 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mb-6 border-4 border-white shadow-xl">
+                <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase italic leading-none mb-3">{{ title|default:"¿Confirmar eliminación?" }}</h2>
+            <p class="text-sm text-gray-400 font-medium leading-relaxed mb-8 px-4">
+                {% if description %}{{ description }}{% else %}Estás a punto de eliminar <span id="{{ name_span_id }}" class="font-black text-gray-900"></span>. Esta acción es irreversible.{% endif %}
+                {% if not description %}<span id="{{ name_span_id }}" class="font-black text-gray-900"></span>. Esta acción es irreversible.{% endif %}
+            </p>
+
+            <form id="{{ form_id }}" method="POST" class="w-full flex items-center gap-3">
+                {% csrf_token %}
+                <button type="button" data-modal-close="{{ modal_id }}"
+                        class="flex-1 px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 border border-gray-100 transition-colors">
+                    {{ cancel_label|default:"Cancelar" }}
+                </button>
+                <button type="submit"
+                        class="flex-1 px-6 py-4 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-red-100 hover:bg-red-700 active:scale-95 transition-all">
+                    {{ confirm_label|default:"Sí, Eliminar" }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

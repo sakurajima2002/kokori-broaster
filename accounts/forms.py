@@ -22,7 +22,7 @@ class RegisterUserForm(UserCreationForm):
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
-        fields = ['street', 'neighborhood', 'city', 'reference']
+        fields = ['street', 'neighborhood', 'municipality', 'reference']
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

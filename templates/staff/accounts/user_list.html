@@ -9,29 +9,13 @@
     <!-- Standardized Header -->
     {% include 'includes/admin_header.html' with title=header_config.title subtitle=header_config.subtitle count_label=header_config.count_label count_value=header_config.count_value %}
 
-    <!-- Search & Actions Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
-        <div class="flex items-center gap-4">
-            <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
-            <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.2em] italic">Personal Registrado</h2>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-            {% include 'includes/search_input.html' with search_id='userSearch' target_id='usersTableBody' item_selector='tr' empty_state_id='userEmptySearchState' placeholder='Buscar empleado...' %}
-        </div>
-    </div>
+    <!-- Toolbar: Title + Search -->
+    {% include 'includes/list_toolbar.html' with toolbar_title="Personal Registrado" search_id="userSearch" target_id="usersTableBody" empty_state_id="userEmptySearchState" search_placeholder="Buscar empleado..." %}
 
     <!-- Groups Table -->
     <div class="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm overflow-hidden mb-16 transition-all hover:shadow-xl hover:shadow-gray-100/50">
-        <div id="userEmptySearchState" class="hidden py-32 text-center bg-gray-50/30">
-            <div class="flex flex-col items-center">
-                <div class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-4">
-                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <p class="text-xs font-black text-gray-400 uppercase tracking-widest italic">No se encontraron empleados que coincidan</p>
-                <button onclick="document.getElementById('userSearch').value=''; document.getElementById('userSearch').dispatchEvent(new Event('input'));" class="mt-4 text-[10px] font-black text-orange-600 uppercase tracking-widest hover:underline decoration-dotted underline-offset-4">Limpiar búsqueda</button>
-            </div>
-        </div>
+        <!-- Empty Search State -->
+        {% include 'includes/empty_search_state.html' with empty_id="userEmptySearchState" search_id="userSearch" message="No se encontraron empleados que coincidan" %}
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50/60 border-b border-gray-100">
@@ -157,12 +141,4 @@
 <script src="{% static 'js/search_filter.js' %}"></script>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    @keyframes modal-enter {
-        from { opacity: 0; transform: scale(0.93) translateY(16px); }
-        to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .animate-modal-enter { animation: modal-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-</style>
-{% endblock %}
+

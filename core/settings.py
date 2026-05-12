@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'roles',
     'products',
     'orders',
+    'base',
     
     'widget_tweaks',
     'cloudinary',
@@ -63,6 +64,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.csrf',
                 'orders.context_processors.cart',
+                'base.context_processors.site_config',
             ],
         },
     },

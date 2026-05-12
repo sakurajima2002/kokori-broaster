@@ -1,0 +1,22 @@
+{% comment %}
+  Reusable list toolbar: section title + search bar.
+  
+  Usage:
+    {% include 'includes/list_toolbar.html' with
+        toolbar_title="Catálogo Operativo"
+        search_id="productSearch"
+        target_id="productsTableBody"
+        empty_state_id="productEmptySearchState"
+        search_placeholder="Buscar producto..."
+    %}
+{% endcomment %}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 px-4">
+    <div class="flex items-center gap-4">
+        <span class="h-8 w-1 bg-orange-500 rounded-full"></span>
+        <h2 class="text-sm font-black text-gray-900 uppercase tracking-[0.25em] italic">{{ toolbar_title }}</h2>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center gap-4">
+        {% include 'includes/search_input.html' with search_id=search_id target_id=target_id item_selector="tr" empty_state_id=empty_state_id placeholder=search_placeholder %}
+    </div>
+</div>
