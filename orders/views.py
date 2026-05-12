@@ -1,5 +1,5 @@
 from django.db.models import ProtectedError
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, DetailView, UpdateView, View
 from django import forms
 from django.forms import inlineformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
