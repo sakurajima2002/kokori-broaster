@@ -397,7 +397,7 @@ class DashboardChartDataView(LoginRequiredMixin, StaffPermissionRequiredMixin, V
 
 from django.http import HttpResponse
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.styles import Font, PatternFill
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 from xhtml2pdf import pisa
