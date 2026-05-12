@@ -284,6 +284,8 @@ class MyAccountView(LoginRequiredMixin, View):
     def post(self, request):
         addresses = request.user.addresses.all()
         recent_orders = Order.objects.filter(user=request.user).order_by('-order_date')[:3]
+        form = UserProfileForm(instance=request.user)
+        password_form = CustomPasswordChangeForm(user=request.user)
         
         if 'update_profile' in request.POST:
             form = UserProfileForm(request.POST, instance=request.user)
