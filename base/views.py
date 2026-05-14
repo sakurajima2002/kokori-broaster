@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from roles.mixins import StaffPermissionRequiredMixin, StaffListingMixin, StaffHeaderMixin, StaffPaginationMixin
+from .forms import SiteParameterForm
 from .models import SiteParameter
 
 class SiteParameterListView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffListingMixin, StaffPaginationMixin, ListView):
@@ -21,7 +22,7 @@ class SiteParameterListView(LoginRequiredMixin, StaffPermissionRequiredMixin, St
 class SiteParameterUpdateView(LoginRequiredMixin, StaffPermissionRequiredMixin, StaffHeaderMixin, UpdateView):
     model = SiteParameter
     template_name = 'staff/configuration/parameter_form.html'
-    fields = ['value', 'image']
+    form_class = SiteParameterForm
     success_url = reverse_lazy('base:parameter_list')
     permission_required = 'base.change_siteparameter'
     header_title = "Editar Parámetro"

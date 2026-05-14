@@ -7,8 +7,8 @@
 <!-- Mobile Header -->
 <div class="lg:hidden bg-white/90 backdrop-blur-md border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
     <div class="flex items-center space-x-3">
-        <div class="h-9 w-9 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-100 rotate-3">
-            <span class="text-white font-black text-sm italic">{{ site_config.COMPANY_ICON_LETTER|default:"K" }}</span>
+            <div class="h-9 w-9 bg-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-100 rotate-3 overflow-hidden">
+            {% include 'includes/company_brand_icon.html' with text_size_class='text-sm' %}
         </div>
         <span class="text-lg font-black text-gray-900 tracking-tighter italic">{{ site_config.COMPANY_NAME|default:"Kokori" }} <span class="text-orange-600">Staff</span></span>
     </div>

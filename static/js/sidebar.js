@@ -28,48 +28,10 @@ export function initSidebar() {
     const COLLAPSED_KEY = 'kokori_sidebar_collapsed';
 
     function applyCollapsedState(collapsed) {
-        if (collapsed) {
-            sidebar.classList.remove('lg:w-72');
-            sidebar.classList.add('lg:w-[4.5rem]');
+        sidebar.classList.toggle('sidebar-collapsed-lg', collapsed);
 
-            document.querySelectorAll('.sidebar-label').forEach(el => {
-                el.classList.add('opacity-0', 'w-0', 'overflow-hidden');
-                el.style.maxWidth = '0';
-            });
-            document.querySelectorAll('.sidebar-section-label').forEach(el => {
-                el.classList.add('opacity-0', 'h-0', 'py-0', 'my-0', 'overflow-hidden');
-                el.style.maxHeight = '0';
-            });
-
-            document.querySelectorAll('.sidebar-link').forEach(el => {
-                el.classList.add('justify-center');
-                el.classList.remove('space-x-3');
-            });
-
-            if (collapseIcon) collapseIcon.classList.add('hidden');
-            if (expandIcon) expandIcon.classList.remove('hidden');
-
-        } else {
-            sidebar.classList.add('lg:w-72');
-            sidebar.classList.remove('lg:w-[4.5rem]');
-
-            document.querySelectorAll('.sidebar-label').forEach(el => {
-                el.classList.remove('opacity-0', 'w-0', 'overflow-hidden');
-                el.style.maxWidth = '';
-            });
-            document.querySelectorAll('.sidebar-section-label').forEach(el => {
-                el.classList.remove('opacity-0', 'h-0', 'py-0', 'my-0', 'overflow-hidden');
-                el.style.maxHeight = '';
-            });
-
-            document.querySelectorAll('.sidebar-link').forEach(el => {
-                el.classList.remove('justify-center');
-                el.classList.add('space-x-3');
-            });
-
-            if (collapseIcon) collapseIcon.classList.remove('hidden');
-            if (expandIcon) expandIcon.classList.add('hidden');
-        }
+        if (collapseIcon) collapseIcon.classList.toggle('hidden', collapsed);
+        if (expandIcon) expandIcon.classList.toggle('hidden', !collapsed);
     }
 
     const savedCollapsed = localStorage.getItem(COLLAPSED_KEY) === 'true';

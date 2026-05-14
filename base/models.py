@@ -1,9 +1,15 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 class SiteParameter(models.Model):
-    """
-    Modelo para almacenar parámetros globales del sitio.
-    """
+    """Modelo para almacenar parámetros globales del sitio."""
+
+    class ParameterType(models.TextChoices):
+        TEXT = "TEXT", _("Texto")
+        ICON = "ICON", _("Icono (letra o imagen)")
+        IMAGE = "IMAGE", _("Imagen")
+
     key = models.SlugField(
         unique=True, 
         max_length=100, 
@@ -31,6 +37,13 @@ class SiteParameter(models.Model):
         blank=True, 
         verbose_name="Descripción",
         help_text="Explicación de para qué sirve este parámetro."
+    )
+    parameter_type = models.CharField(
+        max_length=10,
+        choices=ParameterType.choices,
+        default=ParameterType.TEXT,
+        verbose_name="Tipo",
+        help_text="Texto: solo valor. Icono: letra en valor y/o imagen (la imagen tiene prioridad al mostrar). Imagen: principalmente archivo de imagen.",
     )
 
     class Meta:

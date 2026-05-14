@@ -15,7 +15,8 @@ DEFAULT_PARAMETERS = [
         'key': 'COMPANY_ICON_LETTER',
         'label': 'Letra del Icono',
         'value': 'K',
-        'description': 'Letra individual que se muestra en el icono circular del logo.'
+        'parameter_type': 'ICON',
+        'description': 'Letra individual que se muestra en el icono circular del logo. Opcionalmente puedes subir una imagen (tiene prioridad sobre la letra).'
     },
     {
         'key': 'FOOTER_COPYRIGHT',
@@ -100,6 +101,7 @@ DEFAULT_PARAMETERS = [
         'label': 'Home: Imagen de Experiencia',
         'value': '',
         'image': 'settings/kokori_experience_hero.png',
+        'parameter_type': 'IMAGE',
         'description': 'Imagen que representa la experiencia Kokori en la sección Hero.'
     },
     
