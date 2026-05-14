@@ -21,7 +21,9 @@
                     </div>
                 </td>
                 <td class="px-8 py-6">
-                    {% if param.image %}
+                    {% if param.parameter_type == 'TEXT' %}
+                        <span class="text-sm font-black text-gray-600 tracking-tighter truncate max-w-[200px] block">{{ param.value|default:"---" }}</span>
+                    {% elif param.image %}
                         <div class="h-12 w-12 rounded-xl border border-gray-100 overflow-hidden bg-gray-50">
                             <img src="{{ param.image.url }}" alt="{{ param.label }}" class="h-full w-full object-cover">
                         </div>
