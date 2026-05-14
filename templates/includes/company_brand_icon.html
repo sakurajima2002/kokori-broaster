@@ -1,0 +1,5 @@
+{% if company_brand_icon.has_image %}
+<img src="{{ company_brand_icon.image_url }}" alt="" class="{{ img_class|default:'h-full w-full object-cover' }}">
+{% else %}
+<span class="text-white font-black italic {{ text_size_class|default:'text-xl' }}">{{ company_brand_icon.letter|default:'K' }}</span>
+{% endif %}
